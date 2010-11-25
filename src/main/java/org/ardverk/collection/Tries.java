@@ -266,7 +266,7 @@ public class Tries {
         
         private final Collection<E> delegate;
         
-        public SynchronizedCollection(final Object lock, final Collection<E> delegate) {
+        public SynchronizedCollection(Object lock, Collection<E> delegate) {
             if (lock == null) {
                 throw new NullPointerException("lock");
             }
@@ -280,14 +280,14 @@ public class Tries {
         }
 
         @Override
-        public boolean add(final E e) {
+        public boolean add(E e) {
             synchronized (lock) {
                 return delegate.add(e);
             }
         }
 
         @Override
-        public boolean addAll(final Collection<? extends E> c) {
+        public boolean addAll(Collection<? extends E> c) {
             synchronized (lock) {
                 return delegate.addAll(c);
             }
@@ -301,14 +301,14 @@ public class Tries {
         }
 
         @Override
-        public boolean contains(final Object o) {
+        public boolean contains(Object o) {
             synchronized (lock) {
                 return delegate.contains(o);
             }
         }
 
         @Override
-        public boolean containsAll(final Collection<?> c) {
+        public boolean containsAll(Collection<?> c) {
             synchronized (lock) {
                 return delegate.containsAll(c);
             }
@@ -329,21 +329,21 @@ public class Tries {
         }
 
         @Override
-        public boolean remove(final Object o) {
+        public boolean remove(Object o) {
             synchronized (lock) {
                 return delegate.remove(o);
             }
         }
 
         @Override
-        public boolean removeAll(final Collection<?> c) {
+        public boolean removeAll(Collection<?> c) {
             synchronized (lock) {
                 return delegate.removeAll(c);
             }
         }
 
         @Override
-        public boolean retainAll(final Collection<?> c) {
+        public boolean retainAll(Collection<?> c) {
             synchronized (lock) {
                 return delegate.retainAll(c);
             }
@@ -364,7 +364,7 @@ public class Tries {
         }
 
         @Override
-        public <T> T[] toArray(final T[] a) {
+        public <T> T[] toArray(T[] a) {
             synchronized (lock) {
                 return delegate.toArray(a);
             }
