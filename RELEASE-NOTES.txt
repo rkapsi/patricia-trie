@@ -1,0 +1,9 @@
+
+
+Version History
+
+*** 0.2 ***
+Adding CharArrayKeyAnalizer (contributed by David Lloyd)
+
+*** 0.1 *** 
+Initial Release

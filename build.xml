@@ -1,0 +1,77 @@
+<project name="Patricia-Trie" default="dist" basedir=".">
+	
+	<property name="version" value="0.2"/>
+	
+	<property name="patricia-trie" value="patricia-trie-${version}"/>
+	
+	<property name="build" location="build"/>
+	<property name="dist" location="dist/${patricia-trie}"/>
+	
+	<property name="src" location="src/main/java"/>
+	<property name="rsrc" location="resources/main/java"/>
+	
+	
+	<property name="build.classes" location="${build}/classes"/>
+	<property name="build.resources" location="${build}/resources"/>
+	<property name="build.lib" location="${build}/lib"/>
+	
+	<property name="patricia-trie-jar" location="${build.lib}/${patricia-trie}.jar"/>
+		
+	<target name="init">
+		<tstamp/>
+	</target>
+	
+	<target name="build" depends="init">
+		<mkdir dir="${build.classes}"/>
+		<javac srcdir="${src}" 
+			destdir="${build.classes}"
+			source="1.5"
+			target="1.5"/>
+		
+		<mkdir dir="${build.resources}"/>
+		<copy todir="${build.resources}" failonerror="false">
+    		<fileset dir="${rsrc}"/>
+	  	</copy>
+	</target>
+	
+	<target name="jar" depends="clean, build">
+		<mkdir dir="${build.lib}"/>
+		
+		<jar jarfile="${patricia-trie-jar}">
+			<fileset dir="${build.classes}"/>
+	    	<fileset dir="${build.resources}"/>
+			
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<attribute name="Implementation-Title" value="Patricia Trie"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="dist" depends="jar">
+		<mkdir dir="${dist}"/>
+		<copy file="LICENSE-2.0.txt" todir="${dist}"/>
+		<copy file="RELEASE-NOTES.txt" todir="${dist}"/>
+		<copy file="${patricia-trie-jar}" todir="${dist}"/>
+		
+		<property name="javadoc.dir" location="/home/roger/Desktop/docs/api"/>
+		
+		<javadoc
+			sourcepath="${src}"
+			destdir="${dist}/api"
+			author="true"
+			version="true"
+			use="true"
+			windowtitle="Patricia Trie">
+			
+			<doctitle><![CDATA[<h1>Patricia Trie</h1>]]></doctitle>
+			<bottom><![CDATA[<i>Copyright &#169; 2005-2009 Roger Kapsi, Sam Berlin. All Rights Reserved.</i>]]></bottom>
+			<link offline="true" href="http://java.sun.com/javase/6/docs/api" packagelistLoc="${javadoc.dir}"/>
+		</javadoc>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+</project>
