@@ -49,31 +49,18 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
         return keyAnalyzer;
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public K selectKey(K key) {
         Map.Entry<K, V> entry = select(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getKey();
+        return entry != null ? entry.getKey() : null;
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public V selectValue(K key) {
         Map.Entry<K, V> entry = select(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getValue();
+        return entry != null ? entry.getValue() : null;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+        
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();
@@ -186,25 +173,16 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
             return setValue(value);
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public K getKey() {
             return key;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public V getValue() {
             return value;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public V setValue(V value) {
             V previous = this.value;
@@ -212,22 +190,16 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
             return previous;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public int hashCode() {
             return hashCode;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean equals(Object o) {
             if (o == this) {
                 return true;
-            } else if (!(o instanceof Map.Entry)) {
+            } else if (!(o instanceof Map.Entry<?, ?>)) {
                 return false;
             }
             
@@ -239,9 +211,6 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
             return false;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public String toString() {
             return key + "=" + value;

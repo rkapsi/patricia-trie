@@ -61,9 +61,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
      */
     transient int modCount = 0;
     
-    /** 
-     * {@inheritDoc}
-     */
     public PatriciaTrieBase(KeyAnalyzer<? super K> keyAnalyzer) {
         super(keyAnalyzer);
     }
@@ -80,9 +77,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         putAll(m);
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void clear() {
         root.key = null;
@@ -98,9 +92,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         incrementModCount();
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int size() {
         return size;
@@ -131,9 +122,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         ++modCount;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public V put(K key, V value) {
         if (key == null) {
@@ -246,9 +234,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         }
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public V get(Object k) {
         TrieEntry<K, V> entry = getEntry(k);
@@ -273,9 +258,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         return !entry.isEmpty() && compareKeys(key, entry.key) ? entry : null;
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Map.Entry<K, V> select(K key) {
         int lengthInBits = lengthInBits(key);
         Reference<Map.Entry<K, V>> reference 
@@ -286,9 +269,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         return null;
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Map.Entry<K,V> select(K key, Cursor<? super K, ? super V> cursor) {
         int lengthInBits = lengthInBits(key);
         Reference<Map.Entry<K, V>> reference 
@@ -374,10 +355,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         
         return false;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public Map.Entry<K, V> traverse(Cursor<? super K, ? super V> cursor) {
         TrieEntry<K, V> entry = nextEntry(null);
@@ -405,9 +383,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         return null;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean containsKey(Object k) {
         if (k == null) {
@@ -420,9 +395,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         return !entry.isEmpty() && compareKeys(key, entry.key);
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Set<Map.Entry<K,V>> entrySet() {
         if (entrySet == null) {
@@ -431,9 +403,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         return entrySet;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Set<K> keySet() {
         if (keySet == null) {
@@ -442,9 +411,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         return keySet;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Collection<V> values() {
         if (values == null) {
@@ -896,10 +862,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         public boolean isExternalNode() {
             return !isInternalNode();
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public String toString() {
             StringBuilder buffer = new StringBuilder();
@@ -967,17 +930,11 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
      */
     private class EntrySet extends AbstractSet<Map.Entry<K,V>> {
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Iterator<Map.Entry<K,V>> iterator() {
             return new EntryIterator();
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean contains(Object o) {
             if (!(o instanceof Map.Entry)) {
@@ -988,9 +945,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             return candidate != null && candidate.equals(o);
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean remove(Object o) {
             int size = size();
@@ -998,17 +952,11 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             return size != size();
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public int size() {
             return PatriciaTrieBase.this.size();
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void clear() {
             PatriciaTrieBase.this.clear();
@@ -1031,33 +979,21 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
      */
     private class KeySet extends AbstractSet<K> {
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Iterator<K> iterator() {
             return new KeyIterator();
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public int size() {
             return PatriciaTrieBase.this.size();
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean contains(Object o) {
             return containsKey(o);
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean remove(Object o) {
             int size = size();
@@ -1065,9 +1001,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             return size != size();
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void clear() {
             PatriciaTrieBase.this.clear();
@@ -1090,41 +1023,26 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
      */
     private class Values extends AbstractCollection<V> {
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Iterator<V> iterator() {
             return new ValueIterator();
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public int size() {
             return PatriciaTrieBase.this.size();
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean contains(Object o) {
             return containsValue(o);
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void clear() {
             PatriciaTrieBase.this.clear();
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean remove(Object o) {
             for (Iterator<V> it = iterator(); it.hasNext(); ) {
@@ -1200,17 +1118,11 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             return PatriciaTrieBase.this.nextEntry(prior);
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean hasNext() {
             return next != null;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void remove() {
             if (current == null) {

@@ -45,34 +45,22 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
     private static int mask(int bit) {
         return MSB >>> bit;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitsPerElement() {
         return 1;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int lengthInBits(Integer key) {
         return LENGTH;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public boolean isBitSet(Integer key, int bitIndex, int lengthInBits) {
         return (key & mask(bitIndex)) != 0;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitIndex(Integer key, int offsetInBits, int lengthInBits, 
             Integer other, int otherOffsetInBits, int otherLengthInBits) {
@@ -101,9 +89,6 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isPrefix(Integer prefix, int offsetInBits, 
             int lengthInBits, Integer key) {

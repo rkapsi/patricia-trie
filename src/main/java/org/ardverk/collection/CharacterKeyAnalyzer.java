@@ -46,33 +46,21 @@ public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> {
         return MSB >>> bit;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int bitsPerElement() {
         return 1;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int lengthInBits(Character key) {
         return LENGTH;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public boolean isBitSet(Character key, int bitIndex, int lengthInBits) {
         return (key & mask(bitIndex)) != 0;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitIndex(Character key, int offsetInBits, int lengthInBits, 
             Character other, int otherOffsetInBits, int otherLengthInBits) {
@@ -105,9 +93,6 @@ public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> {
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isPrefix(Character prefix, int offsetInBits, 
             int lengthInBits, Character key) {

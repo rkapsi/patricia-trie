@@ -54,25 +54,16 @@ class BigIntegerKeyAnalyzer extends AbstractKeyAnalyzer<BigInteger> {
         return maxLengthInBits;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int bitsPerElement() {
         return 1;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int lengthInBits(BigInteger key) {
         return (key != null ? key.bitLength() : 0);
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isBitSet(BigInteger key, int bitIndex, int lengthInBits) {
         if (key == null) {     
@@ -90,9 +81,6 @@ class BigIntegerKeyAnalyzer extends AbstractKeyAnalyzer<BigInteger> {
         return key.testBit(idx);
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int bitIndex(BigInteger key, int offsetInBits, int lengthInBits, 
             BigInteger other, int otherOffsetInBits, int otherLengthInBits) {
@@ -132,9 +120,6 @@ class BigIntegerKeyAnalyzer extends AbstractKeyAnalyzer<BigInteger> {
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isPrefix(BigInteger prefix, int offsetInBits, 
             int lengthInBits, BigInteger key) {

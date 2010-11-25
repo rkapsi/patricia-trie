@@ -44,26 +44,17 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
     private static int mask(int bit) {
         return MSB >>> bit;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+        
     @Override
     public int bitsPerElement() {
         return LENGTH;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+        
     @Override
     public int lengthInBits(String key) {
         return (key != null ? key.length() * LENGTH : 0);
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+        
     @Override
     public int bitIndex(String key, int offsetInBits, int lengthInBits,
             String other, int otherOffsetInBits, int otherLengthInBits) {
@@ -122,10 +113,7 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
         // Both keys are equal
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+        
     @Override
     public boolean isBitSet(String key, int bitIndex, int lengthInBits) {
         if (key == null || bitIndex >= lengthInBits) {
@@ -137,10 +125,7 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
         
         return (key.charAt(index) & mask(bit)) != 0;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+        
     @Override
     public boolean isPrefix(String prefix, int offsetInBits, 
             int lengthInBits, String key) {

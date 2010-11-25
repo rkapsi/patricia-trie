@@ -45,34 +45,22 @@ public class LongKeyAnalyzer extends AbstractKeyAnalyzer<Long> {
     private static long mask(int bit) {
         return MSB >>> bit;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitsPerElement() {
         return 1;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int lengthInBits(Long key) {
         return LENGTH;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public boolean isBitSet(Long key, int bitIndex, int lengthInBits) {
         return (key & mask(bitIndex)) != 0;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitIndex(Long key, int offsetInBits, int lengthInBits, 
             Long other, int otherOffsetInBits, int otherLengthInBits) {
@@ -101,9 +89,6 @@ public class LongKeyAnalyzer extends AbstractKeyAnalyzer<Long> {
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isPrefix(Long prefix, int offsetInBits, 
             int lengthInBits, Long key) {

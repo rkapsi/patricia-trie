@@ -72,73 +72,46 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
     
     private static final long serialVersionUID = 4446367780901817838L;
 
-    /**
-     * {@inheritDoc}
-     */
     public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer) {
         super(keyAnalyzer);
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer,
             Map<? extends K, ? extends V> m) {
         super(keyAnalyzer, m);
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Comparator<? super K> comparator() {
         return keyAnalyzer;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SortedMap<K, V> getPrefixedBy(K key) {
         return getPrefixedByBits(key, 0, lengthInBits(key));
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public SortedMap<K, V> getPrefixedBy(K key, int length) {
         return getPrefixedByBits(key, 0, length * bitsPerElement());
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
         int bitsPerElement = bitsPerElement();
         return getPrefixedByBits(key, offset*bitsPerElement, length*bitsPerElement);
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
         return getPrefixedByBits(key, 0, lengthInBits);
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public K firstKey() {
         return firstEntry().getKey();
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public K lastKey() {
         TrieEntry<K, V> entry = lastEntry();
@@ -178,25 +151,16 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
         return new PrefixRangeMap(key, offsetInBits, lengthInBits);
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SortedMap<K, V> headMap(K toKey) {
         return new RangeEntryMap(null, toKey);
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public SortedMap<K, V> subMap(K fromKey, K toKey) {
         return new RangeEntryMap(fromKey, toKey);
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public SortedMap<K, V> tailMap(K fromKey) {
         return new RangeEntryMap(fromKey, null);
@@ -612,17 +576,12 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
          */
         protected abstract boolean isToInclusive();
         
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public Comparator<? super K> comparator() {
             return PatriciaTrie.this.comparator();
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public boolean containsKey(Object key) {
             if (!inRange(castKey(key))) {
@@ -631,10 +590,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
 
             return PatriciaTrie.this.containsKey(key);
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public V remove(Object key) {
             if (!inRange(castKey(key))) {
@@ -643,10 +599,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
 
             return PatriciaTrie.this.remove(key);
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public V get(Object key) {
             if (!inRange(castKey(key))) {
@@ -655,10 +608,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
 
             return PatriciaTrie.this.get(key);
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public V put(K key, V value) {
             if (!inRange(key)) {
@@ -668,10 +618,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
 
             return PatriciaTrie.this.put(key, value);
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public Set<Map.Entry<K, V>> entrySet() {
             if (entrySet == null) {
@@ -679,10 +626,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             }
             return entrySet;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public SortedMap<K, V> subMap(K fromKey, K toKey) {
             if (!inRange2(fromKey)) {
@@ -698,10 +642,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             return createRangeMap(fromKey, isFromInclusive(), 
                     toKey, isToInclusive());
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public SortedMap<K, V> headMap(K toKey) {
             if (!inRange2(toKey)) {
@@ -712,10 +653,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             return createRangeMap(getFromKey(), isFromInclusive(), 
                     toKey, isToInclusive());
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public SortedMap<K, V> tailMap(K fromKey) {
             if (!inRange2(fromKey)) {
@@ -847,9 +785,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
            this.toInclusive = toInclusive;
        }
        
-       /**
-        * {@inheritDoc}
-        */
+       
        @Override
        public K firstKey() {
            Map.Entry<K,V> e = null;
@@ -870,9 +806,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
            return first;
        }
 
-       /**
-        * {@inheritDoc}
-        */
+       
        @Override
        public K lastKey() {
            Map.Entry<K,V> e;
@@ -893,49 +827,31 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
            return last;
        }
        
-       /**
-        * {@inheritDoc}
-        */
        @Override
        protected Set<Entry<K, V>> createEntrySet() {
            return new RangeEntrySet(this);
        }
        
-       /**
-        * {@inheritDoc}
-        */
        @Override
        public K getFromKey() {
            return fromKey;
        }
-
-       /**
-        * {@inheritDoc}
-        */
+       
        @Override
        public K getToKey() {
            return toKey;
        }
-
-       /**
-        * {@inheritDoc}
-        */
+       
        @Override
        public boolean isFromInclusive() {
            return fromInclusive;
        }
-
-       /**
-        * {@inheritDoc}
-        */
+       
        @Override
        public boolean isToInclusive() {
            return toInclusive;
        }
-
-       /**
-        * {@inheritDoc}
-        */
+       
        @Override
        protected SortedMap<K, V> createRangeMap(K fromKey, boolean fromInclusive,
                K toKey, boolean toInclusive) {
@@ -964,10 +880,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
 
             this.delegate = delegate;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public Iterator<Map.Entry<K, V>> iterator() {
             K fromKey = delegate.getFromKey();
@@ -987,10 +900,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
 
             return new EntryIterator(first, last);
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public int size() {
             if (size == -1 || expectedModCount != PatriciaTrie.this.modCount) {
@@ -1004,18 +914,12 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             }
             return size;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public boolean isEmpty() {
             return !iterator().hasNext();
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public boolean contains(Object o) {
             if (!(o instanceof Map.Entry<?, ?>)) {
@@ -1033,10 +937,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             return node != null && Objects.areEqual(
                     node.getValue(), entry.getValue());
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public boolean remove(Object o) {
             if (!(o instanceof Map.Entry<?, ?>)) {
@@ -1076,18 +977,12 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
                 
                 this.excludedKey = (last != null ? last.getKey() : null);
             }
-
-            /**
-             * {@inheritDoc}
-             */
+            
             @Override
             public boolean hasNext() {
                 return next != null && !Objects.areEqual(next.key, excludedKey);
             }
-
-            /**
-             * {@inheritDoc}
-             */
+            
             @Override
             public Map.Entry<K,V> next() {
                 if (next == null || Objects.areEqual(next.key, excludedKey)) {
@@ -1172,9 +1067,6 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             return size;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public K firstKey() {
             fixup();
@@ -1194,10 +1086,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             
             return first;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public K lastKey() {
             fixup();
@@ -1253,49 +1142,31 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             return keyAnalyzer.isPrefix(prefix, offsetInBits, lengthInBits, key);
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         protected Set<Map.Entry<K, V>> createEntrySet() {
             return new PrefixRangeEntrySet(this);
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public K getFromKey() {
             return fromKey;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public K getToKey() {
             return toKey;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public boolean isFromInclusive() {
             return false;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public boolean isToInclusive() {
             return false;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         protected SortedMap<K, V> createRangeMap(
                 K fromKey, boolean fromInclusive,
@@ -1323,17 +1194,11 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             this.delegate = delegate;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public int size() {
             return delegate.fixup();
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public Iterator<Map.Entry<K,V>> iterator() {
             if (PatriciaTrie.this.modCount != expectedModCount) {
@@ -1364,17 +1229,11 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
                 this.entry = entry;
             }
             
-            /**
-             * {@inheritDoc}
-             */
             @Override
             public boolean hasNext() {
                 return hit == 0;
             }
-
-            /**
-             * {@inheritDoc}
-             */
+            
             @Override
             public Map.Entry<K, V> next() {
                 if (hit != 0) {
@@ -1385,9 +1244,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
                 return entry;
             }
 
-            /**
-             * {@inheritDoc}
-             */
+            
             @Override
             public void remove() {
                 if (hit != 1) {
@@ -1424,10 +1281,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
                 this.offset = offset;
                 this.lengthInBits = lengthInBits;
             }
-
-            /**
-             * {@inheritDoc}
-             */
+            
             @Override
             public Map.Entry<K,V> next() {
                 Map.Entry<K, V> entry = nextEntry();
@@ -1437,17 +1291,11 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
                 return entry;
             }
             
-            /**
-             * {@inheritDoc}
-             */
             @Override
             protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
                 return PatriciaTrie.this.nextEntryInSubtree(prior, subtree);
             }
             
-            /**
-             * {@inheritDoc}
-             */
             @Override
             public void remove() {
                 // If the current entry we're removing is the subtree

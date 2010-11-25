@@ -72,25 +72,16 @@ public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> {
         return maxLengthInBits;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int bitsPerElement() {
         return LENGTH;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int lengthInBits(byte[] key) {
         return (key != null ? key.length * bitsPerElement() : 0);
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isBitSet(byte[] key, int bitIndex, int lengthInBits) {
         if (key == null) {     
@@ -108,10 +99,7 @@ public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> {
         int bit = (int)(keyBitIndex % LENGTH);
         return (key[index] & mask(bit)) != 0;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitIndex(byte[] key, int offsetInBits, int lengthInBits, 
             byte[] other, int otherOffsetInBits, int otherLengthInBits) {
@@ -151,9 +139,6 @@ public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> {
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isPrefix(byte[] prefix, int offsetInBits, 
             int lengthInBits, byte[] key) {
@@ -174,9 +159,6 @@ public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> {
         return true;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int compare(byte[] o1, byte[] o2) {
         if (o1 == null) {

@@ -45,34 +45,22 @@ public class ShortKeyAnalyzer implements KeyAnalyzer<Short> {
     private static int mask(int bit) {
         return MSB >>> bit;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitsPerElement() {
         return 1;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+        
     @Override
     public int lengthInBits(Short key) {
         return LENGTH;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public boolean isBitSet(Short key, int bitIndex, int lengthInBits) {
         return (key & mask(bitIndex)) != 0;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitIndex(Short key, int offsetInBits, int lengthInBits, 
             Short other, int otherOffsetInBits, int otherLengthInBits) {
@@ -100,18 +88,12 @@ public class ShortKeyAnalyzer implements KeyAnalyzer<Short> {
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int compare(Short o1, Short o2) {
         return o1.compareTo(o2);
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+        
     @Override
     public boolean isPrefix(Short prefix, int offsetInBits, 
             int lengthInBits, Short key) {

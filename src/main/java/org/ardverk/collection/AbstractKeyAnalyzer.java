@@ -19,10 +19,7 @@ package org.ardverk.collection;
 public abstract class AbstractKeyAnalyzer<K> implements KeyAnalyzer<K> {
     
     private static final long serialVersionUID = -20497563720380683L;
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @SuppressWarnings("unchecked")
     @Override
     public int compare(K o1, K o2) {

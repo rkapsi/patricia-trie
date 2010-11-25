@@ -44,26 +44,17 @@ public class CharArrayKeyAnalyzer extends AbstractKeyAnalyzer<char[]> {
     private static int mask(int bit) {
         return MSB >>> bit;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitsPerElement() {
         return LENGTH;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int lengthInBits(char[] key) {
         return (key != null ? key.length * LENGTH : 0);
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public int bitIndex(char[] key, int offsetInBits, int lengthInBits,
             char[] other, int otherOffsetInBits, int otherLengthInBits) {
@@ -122,10 +113,7 @@ public class CharArrayKeyAnalyzer extends AbstractKeyAnalyzer<char[]> {
         // Both keys are equal
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public boolean isBitSet(char[] key, int bitIndex, int lengthInBits) {
         if (key == null || bitIndex >= lengthInBits) {
@@ -137,10 +125,7 @@ public class CharArrayKeyAnalyzer extends AbstractKeyAnalyzer<char[]> {
 
         return (key[index] & mask(bit)) != 0;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public boolean isPrefix(char[] prefix, int offsetInBits,
             int lengthInBits, char[] key) {
