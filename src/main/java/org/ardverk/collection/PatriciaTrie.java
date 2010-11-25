@@ -1016,13 +1016,13 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
         /**
          * {@inheritDoc}
          */
-        @SuppressWarnings("unchecked")
         @Override
         public boolean contains(Object o) {
-            if (!(o instanceof Map.Entry)) {
+            if (!(o instanceof Map.Entry<?, ?>)) {
                 return false;
             }
 
+            @SuppressWarnings("unchecked")
             Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
             K key = entry.getKey();
             if (!delegate.inRange(key)) {
@@ -1037,13 +1037,13 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
         /**
          * {@inheritDoc}
          */
-        @SuppressWarnings("unchecked")
         @Override
         public boolean remove(Object o) {
-            if (!(o instanceof Map.Entry)) {
+            if (!(o instanceof Map.Entry<?, ?>)) {
                 return false;
             }
 
+            @SuppressWarnings("unchecked")
             Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
             K key = entry.getKey();
             if (!delegate.inRange(key)) {
