@@ -39,11 +39,7 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
      * Constructs a new {@link Trie} using the given {@link KeyAnalyzer} 
      */
     public AbstractTrie(KeyAnalyzer<? super K> keyAnalyzer) {
-        if (keyAnalyzer == null) {
-            throw new NullPointerException("keyAnalyzer");
-        }
-        
-        this.keyAnalyzer = keyAnalyzer;
+        this.keyAnalyzer = Objects.notNull(keyAnalyzer, "keyAnalyzer");
     }
     
     /**
@@ -236,8 +232,8 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
             }
             
             Map.Entry<?, ?> other = (Map.Entry<?, ?>)o;
-            if (Tries.compare(key, other.getKey()) 
-                    && Tries.compare(value, other.getValue())) {
+            if (Objects.areEqual(key, other.getKey()) 
+                    && Objects.areEqual(value, other.getValue())) {
                 return true;
             }
             return false;

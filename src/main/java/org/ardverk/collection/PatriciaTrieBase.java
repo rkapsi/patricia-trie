@@ -77,10 +77,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             Map<? extends K, ? extends V> m) {
         super(keyAnalyzer);
         
-        if (m == null) {
-            throw new NullPointerException("m");
-        }
-        
         putAll(m);
     }
     
@@ -1133,7 +1129,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         public boolean remove(Object o) {
             for (Iterator<V> it = iterator(); it.hasNext(); ) {
                 V value = it.next();
-                if (Tries.compare(value, o)) {
+                if (Objects.areEqual(value, o)) {
                     it.remove();
                     return true;
                 }

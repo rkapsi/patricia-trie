@@ -33,22 +33,11 @@ public class Tries {
     private Tries() {}
     
     /**
-     * Returns true if both values are either null or equal
-     */
-    static boolean compare(Object a, Object b) {
-        return (a == null ? b == null : a.equals(b));
-    }
-    
-    /**
      * Returns a synchronized instance of a {@link Trie}
      * 
      * @see Collections#synchronizedMap(Map)
      */
     public static <K, V> Trie<K, V> synchronizedTrie(Trie<K, V> trie) {
-        if (trie == null) {
-            throw new NullPointerException("trie");
-        }
-        
         if (trie instanceof SynchronizedTrie) {
             return trie;
         }
@@ -62,10 +51,6 @@ public class Tries {
      * @see Collections#unmodifiableMap(Map)
      */
     public static <K, V> Trie<K, V> unmodifiableTrie(Trie<K, V> trie) {
-        if (trie == null) {
-            throw new NullPointerException("trie");
-        }
-        
         if (trie instanceof UnmodifiableTrie) {
             return trie;
         }
@@ -83,11 +68,7 @@ public class Tries {
         private final Trie<K, V> delegate;
         
         public SynchronizedTrie(Trie<K, V> delegate) {
-            if (delegate == null) {
-                throw new NullPointerException("delegate");
-            }
-            
-            this.delegate = delegate;
+            this.delegate = Objects.notNull(delegate, "delegate");
         }
 
         @Override
@@ -267,16 +248,8 @@ public class Tries {
         private final Collection<E> delegate;
         
         public SynchronizedCollection(Object lock, Collection<E> delegate) {
-            if (lock == null) {
-                throw new NullPointerException("lock");
-            }
-            
-            if (delegate == null) {
-                throw new NullPointerException("delegate");
-            }
-            
-            this.lock = lock;
-            this.delegate = delegate;
+            this.lock = Objects.notNull(lock, "lock");
+            this.delegate = Objects.notNull(delegate, "delegate");
         }
 
         @Override
@@ -417,16 +390,8 @@ public class Tries {
         private final SortedMap<K, V> delegate;
         
         public SynchronizedSortedMap(Object lock, SortedMap<K, V> delegate) {
-            if (lock == null) {
-                throw new NullPointerException("lock");
-            }
-            
-            if (delegate == null) {
-                throw new NullPointerException("delegate");
-            }
-            
-            this.lock = lock;
-            this.delegate = delegate;
+            this.lock = Objects.notNull(lock, "lock");
+            this.delegate = Objects.notNull(delegate, "delegate");
         }
 
         @Override
@@ -591,11 +556,7 @@ public class Tries {
         private final Trie<K, V> delegate;
         
         public UnmodifiableTrie(Trie<K, V> delegate) {
-            if (delegate == null) {
-                throw new NullPointerException("delegate");
-            }
-            
-            this.delegate = delegate;
+            this.delegate = Objects.notNull(delegate, "delegate");
         }
         
         @Override

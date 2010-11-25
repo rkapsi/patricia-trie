@@ -1030,7 +1030,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             }
 
             TrieEntry<K, V> node = getEntry(key);
-            return node != null && Tries.compare(
+            return node != null && Objects.areEqual(
                     node.getValue(), entry.getValue());
         }
 
@@ -1051,7 +1051,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
             }
 
             TrieEntry<K, V> node = getEntry(key);
-            if (node != null && Tries.compare(
+            if (node != null && Objects.areEqual(
                     node.getValue(), entry.getValue())) {
                 removeEntry(node);
                 return true;
@@ -1082,7 +1082,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
              */
             @Override
             public boolean hasNext() {
-                return next != null && !Tries.compare(next.key, excludedKey);
+                return next != null && !Objects.areEqual(next.key, excludedKey);
             }
 
             /**
@@ -1090,7 +1090,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K
              */
             @Override
             public Map.Entry<K,V> next() {
-                if (next == null || Tries.compare(next.key, excludedKey)) {
+                if (next == null || Objects.areEqual(next.key, excludedKey)) {
                     throw new NoSuchElementException();
                 }
                 
