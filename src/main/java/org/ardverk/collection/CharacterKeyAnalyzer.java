@@ -16,28 +16,18 @@
 
 package org.ardverk.collection;
 
-/**
- * A {@link KeyAnalyzer} for {@link Character}s
- */
-public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> {
+import java.io.Serializable;
+
+public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> implements Serializable {
     
-    private static final long serialVersionUID = 3928565962744720753L;
-    
-    /**
-     * A singleton instance of the {@link CharacterKeyAnalyzer}.
-     */
-    public static final CharacterKeyAnalyzer INSTANCE 
-        = new CharacterKeyAnalyzer();
-    
-    /**
-     * The length of a {@link Character} in bits
-     */
-    public static final int LENGTH = Character.SIZE;
-    
+    private static final long serialVersionUID = 7768219441533281842L;
+
+    public static final CharacterKeyAnalyzer INSTANCE = new CharacterKeyAnalyzer();
+
     /**
      * A bit mask where the first bit is 1 and the others are zero
      */
-    private static final int MSB = 0x8000;
+    private static final int MSB = 1 << Character.SIZE-1;
     
     /**
      * Returns a bit mask where the given bit is set
@@ -47,43 +37,27 @@ public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> {
     }
     
     @Override
-    public int bitsPerElement() {
-        return 1;
-    }
-    
-    @Override
     public int lengthInBits(Character key) {
-        return LENGTH;
+        return Character.SIZE;
     }
-    
+
     @Override
-    public boolean isBitSet(Character key, int bitIndex, int lengthInBits) {
+    public boolean isBitSet(Character key, int bitIndex) {
         return (key & mask(bitIndex)) != 0;
     }
-    
+
     @Override
-    public int bitIndex(Character key, int offsetInBits, int lengthInBits, 
-            Character other, int otherOffsetInBits, int otherLengthInBits) {
-        
-        if (offsetInBits != 0 || otherOffsetInBits != 0) {
-            throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
-                    + ", otherOffsetInBits=" + otherOffsetInBits);
-        }
-        
+    public int bitIndex(Character key, Character otherKey) {
         char keyValue = key.charValue();
-        if (keyValue == Character.MIN_VALUE) {
+        if (keyValue == 0) {
             return NULL_BIT_KEY;
         }
-        
-        if (other == null) {
-            other = Character.MIN_VALUE;
-        }
-        
-        char otherValue = (other != null ? other.charValue() : Character.MIN_VALUE);
+
+        char otherValue = otherKey.charValue();
         
         if (keyValue != otherValue) {
             int xorValue = keyValue ^ otherValue;
-            for (int i = 0; i < LENGTH; i++) {
+            for (int i = 0; i < Character.SIZE; i++) {
                 if ((xorValue & mask(i)) != 0) {
                     return i;
                 }
@@ -92,19 +66,9 @@ public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> {
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-    
+
     @Override
-    public boolean isPrefix(Character prefix, int offsetInBits, 
-            int lengthInBits, Character key) {
-        
-        int value1 = (prefix.charValue() << offsetInBits);
-        int value2 = key.charValue();
-        
-        int mask = 0;
-        for(int i = 0; i < lengthInBits; i++) {
-            mask |= (0x1 << i);
-        }
-        
-        return (value1 & mask) == (value2 & mask);
+    public boolean isPrefix(Character key, Character prefix) {
+        return key.equals(prefix);
     }
 }

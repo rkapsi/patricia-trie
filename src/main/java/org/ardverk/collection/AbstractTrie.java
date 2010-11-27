@@ -25,9 +25,7 @@ import java.util.Map;
  * utility methods for actual {@link Trie} implementations.
  */
 abstract class AbstractTrie<K, V> extends AbstractMap<K, V> 
-        implements Trie<K, V>, Serializable {
-    
-    private static final long serialVersionUID = 5826987063535505652L;
+        implements Trie<K, V> {
     
     /**
      * The {@link KeyAnalyzer} that's being used to build the 
@@ -35,11 +33,15 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
      */
     protected final KeyAnalyzer<? super K> keyAnalyzer;
     
+    public AbstractTrie() {
+        this(DefaultKeyAnalyzer.singleton());
+    }
+    
     /** 
      * Constructs a new {@link Trie} using the given {@link KeyAnalyzer} 
      */
     public AbstractTrie(KeyAnalyzer<? super K> keyAnalyzer) {
-        this.keyAnalyzer = Objects.notNull(keyAnalyzer, "keyAnalyzer");
+        this.keyAnalyzer = Tries.notNull(keyAnalyzer, "keyAnalyzer");
     }
     
     /**
@@ -73,15 +75,6 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * A utility method to cast keys. It actually doesn't
-     * cast anything. It's just fooling the compiler!
-     */
-    @SuppressWarnings("unchecked")
-    final K castKey(Object key) {
-        return (K)key;
-    }
-    
-    /**
      * Returns the length of the given key in bits
      * 
      * @see KeyAnalyzer#lengthInBits(Object)
@@ -95,33 +88,42 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Returns the number of bits per element in the key
-     * 
-     * @see KeyAnalyzer#bitsPerElement()
-     */
-    final int bitsPerElement() {
-        return keyAnalyzer.bitsPerElement();
-    }
-    
-    /**
      * Returns whether or not the given bit on the 
      * key is set or false if the key is null.
      * 
-     * @see KeyAnalyzer#isBitSet(Object, int, int)
+     * @see KeyAnalyzer#isBitSet(Object, int)
      */
-    final boolean isBitSet(K key, int bitIndex, int lengthInBits) {
+    final boolean isBitSet(K key, int bitIndex) {
         if (key == null) { // root's might be null!
             return false;
         }
-        return keyAnalyzer.isBitSet(key, bitIndex, lengthInBits);
+        return keyAnalyzer.isBitSet(key, bitIndex);
     }
     
     /**
-     * Utility method for calling {@link KeyAnalyzer#bitIndex(Object, int, int, Object, int, int)}
+     * Utility method for calling {@link KeyAnalyzer#bitIndex(Object, Object)}
      */
-    final int bitIndex(K key, K foundKey) {
-        return keyAnalyzer.bitIndex(key, 0, lengthInBits(key), 
-                foundKey, 0, lengthInBits(foundKey));
+    final int bitIndex(K key, K otherKey) {
+        if (key != null && otherKey != null) {
+            return keyAnalyzer.bitIndex(key, otherKey);            
+        } else if (key != null && otherKey == null) {
+            return bitIndex(key);
+        } else if (key == null && otherKey != null) {
+            return bitIndex(otherKey);
+        }
+        
+        return KeyAnalyzer.NULL_BIT_KEY;
+    }
+    
+    private int bitIndex(K key) {
+        int lengthInBits = lengthInBits(key);
+        for (int i = 0; i < lengthInBits; i++) {
+            if (isBitSet(key, i)) {
+                return i;
+            }
+        }
+        
+        return KeyAnalyzer.NULL_BIT_KEY;
     }
     
     /**
@@ -204,8 +206,8 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
             }
             
             Map.Entry<?, ?> other = (Map.Entry<?, ?>)o;
-            if (Objects.areEqual(key, other.getKey()) 
-                    && Objects.areEqual(value, other.getValue())) {
+            if (Tries.areEqual(key, other.getKey()) 
+                    && Tries.areEqual(value, other.getValue())) {
                 return true;
             }
             return false;

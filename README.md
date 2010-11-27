@@ -6,6 +6,6 @@ This is a general purpose implementation of a PATRICIA Trie in Java. It implemen
 
 The PATRICIA Trie is also known under the names [Radix and Crit Bit Tree](http://en.wikipedia.org/wiki/PATRICIA).
 
-**Download:** Binaries can be found on this project's [Google Code Page](http://code.google.com/p/patricia-trie).
+**Download:** Binaries can be found on the project's [Google Code Page](http://code.google.com/p/patricia-trie).
 
 **NOTE:** This implementation has been contributed to [Apache Commons Collections](https://issues.apache.org/jira/browse/COLLECTIONS-225) and [Google Collections Library](http://groups.google.com/group/google-guice/browse_frm/thread/ffb2a3b3b9e39e79/23d2736911a14109).

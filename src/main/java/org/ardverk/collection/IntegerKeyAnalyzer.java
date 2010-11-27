@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2010 Roger Kapsi, Sam Berlin
+ * Copyright 2005-2010 Roger Kapsi
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -16,28 +16,18 @@
 
 package org.ardverk.collection;
 
+import java.io.Serializable;
 
-/**
- * A {@link KeyAnalyzer} for {@link Integer}s
- */
-public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
+public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> implements Serializable {
     
-    private static final long serialVersionUID = 4928508653722068982L;
-    
-    /**
-     * A singleton instance of {@link IntegerKeyAnalyzer}
-     */
+    private static final long serialVersionUID = 8805465126366464399L;
+
     public static final IntegerKeyAnalyzer INSTANCE = new IntegerKeyAnalyzer();
-    
-    /**
-     * The length of an {@link Integer} in bits
-     */
-    public static final int LENGTH = Integer.SIZE;
-    
+
     /**
      * A bit mask where the first bit is 1 and the others are zero
      */
-    private static final int MSB = 0x80000000;
+    private static final int MSB = 1 << Integer.SIZE-1;
     
     /**
      * Returns a bit mask where the given bit is set
@@ -47,39 +37,27 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
     }
     
     @Override
-    public int bitsPerElement() {
-        return 1;
-    }
-    
-    @Override
     public int lengthInBits(Integer key) {
-        return LENGTH;
+        return Integer.SIZE;
     }
-    
+
     @Override
-    public boolean isBitSet(Integer key, int bitIndex, int lengthInBits) {
+    public boolean isBitSet(Integer key, int bitIndex) {
         return (key & mask(bitIndex)) != 0;
     }
-    
+
     @Override
-    public int bitIndex(Integer key, int offsetInBits, int lengthInBits, 
-            Integer other, int otherOffsetInBits, int otherLengthInBits) {
-        
-        if (offsetInBits != 0 || otherOffsetInBits != 0) {
-            throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
-                    + ", otherOffsetInBits=" + otherOffsetInBits);
-        }
-        
+    public int bitIndex(Integer key, Integer otherKey) {
         int keyValue = key.intValue();
         if (keyValue == 0) {
             return NULL_BIT_KEY;
         }
 
-        int otherValue = (other != null ? other.intValue() : 0);
+        int otherValue = otherKey.intValue();
         
         if (keyValue != otherValue) {
             int xorValue = keyValue ^ otherValue;
-            for (int i = 0; i < LENGTH; i++) {
+            for (int i = 0; i < Integer.SIZE; i++) {
                 if ((xorValue & mask(i)) != 0) {
                     return i;
                 }
@@ -88,19 +66,9 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-    
+
     @Override
-    public boolean isPrefix(Integer prefix, int offsetInBits, 
-            int lengthInBits, Integer key) {
-        
-        int value1 = (prefix.intValue() << offsetInBits);
-        int value2 = key.intValue();
-        
-        int mask = 0;
-        for (int i = 0; i < lengthInBits; i++) {
-            mask |= (0x1 << i);
-        }
-        
-        return (value1 & mask) == (value2 & mask);
+    public boolean isPrefix(Integer key, Integer prefix) {
+        return key.equals(prefix);
     }
 }

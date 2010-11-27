@@ -30,6 +30,63 @@ import java.util.SortedMap;
  */
 public class Tries {
 
+    /** 
+     * Returns true if bitIndex is a {@link KeyAnalyzer#OUT_OF_BOUNDS_BIT_KEY}
+     */
+    static boolean isOutOfBoundsIndex(int bitIndex) {
+        return bitIndex == KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
+    }
+
+    /** 
+     * Returns true if bitIndex is a {@link KeyAnalyzer#EQUAL_BIT_KEY}
+     */
+    static boolean isEqualBitKey(int bitIndex) {
+        return bitIndex == KeyAnalyzer.EQUAL_BIT_KEY;
+    }
+
+    /** 
+     * Returns true if bitIndex is a {@link KeyAnalyzer#NULL_BIT_KEY} 
+     */
+    static boolean isNullBitKey(int bitIndex) {
+        return bitIndex == KeyAnalyzer.NULL_BIT_KEY;
+    }
+
+    /** 
+     * Returns true if the given bitIndex is valid. Indices 
+     * are considered valid if they're between 0 and 
+     * {@link Integer#MAX_VALUE}
+     */
+    static boolean isValidBitIndex(int bitIndex) {
+        return 0 <= bitIndex && bitIndex <= Integer.MAX_VALUE;
+    }
+
+    /**
+     * Returns true if both values are either null or equal
+     */
+    static boolean areEqual(Object a, Object b) {
+        return (a == null ? b == null : a.equals(b));
+    }
+
+    /**
+     * Throws a {@link NullPointerException} with the given message if 
+     * the argument is null.
+     */
+    static <T> T notNull(T o, String message) {
+        if (o == null) {
+            throw new NullPointerException(message);
+        }
+        return o;
+    }
+
+    /**
+     * A utility method to cast keys. It actually doesn't
+     * cast anything. It's just fooling the compiler!
+     */
+    @SuppressWarnings("unchecked")
+    static <K> K cast(Object key) {
+        return (K)key;
+    }
+    
     private Tries() {}
     
     /**
@@ -68,7 +125,7 @@ public class Tries {
         private final Trie<K, V> delegate;
         
         public SynchronizedTrie(Trie<K, V> delegate) {
-            this.delegate = Objects.notNull(delegate, "delegate");
+            this.delegate = Tries.notNull(delegate, "delegate");
         }
 
         @Override
@@ -184,35 +241,11 @@ public class Tries {
         public synchronized SortedMap<K, V> headMap(K toKey) {
             return new SynchronizedSortedMap<K, V>(this, delegate.headMap(toKey));
         }
-        
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
-            return new SynchronizedSortedMap<K, V>(this, delegate.getPrefixedBy(key, offset, length));
-        }
 
         @Override
-        public synchronized SortedMap<K, V> getPrefixedBy(K key, int length) {
+        public synchronized SortedMap<K, V> prefixMap(K prefix) {
             return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedBy(key, length));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedBy(K key) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedBy(key));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedByBits(key, lengthInBits));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedByBits(K key, 
-                int offsetInBits, int lengthInBits) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
+                    delegate.prefixMap(prefix));
         }
 
         @Override
@@ -248,8 +281,8 @@ public class Tries {
         private final Collection<E> delegate;
         
         public SynchronizedCollection(Object lock, Collection<E> delegate) {
-            this.lock = Objects.notNull(lock, "lock");
-            this.delegate = Objects.notNull(delegate, "delegate");
+            this.lock = Tries.notNull(lock, "lock");
+            this.delegate = Tries.notNull(delegate, "delegate");
         }
 
         @Override
@@ -390,8 +423,8 @@ public class Tries {
         private final SortedMap<K, V> delegate;
         
         public SynchronizedSortedMap(Object lock, SortedMap<K, V> delegate) {
-            this.lock = Objects.notNull(lock, "lock");
-            this.delegate = Objects.notNull(delegate, "delegate");
+            this.lock = Tries.notNull(lock, "lock");
+            this.delegate = Tries.notNull(delegate, "delegate");
         }
 
         @Override
@@ -556,7 +589,7 @@ public class Tries {
         private final Trie<K, V> delegate;
         
         public UnmodifiableTrie(Trie<K, V> delegate) {
-            this.delegate = Objects.notNull(delegate, "delegate");
+            this.delegate = Tries.notNull(delegate, "delegate");
         }
         
         @Override
@@ -692,36 +725,11 @@ public class Tries {
         public SortedMap<K, V> tailMap(K fromKey) {
             return Collections.unmodifiableSortedMap(delegate.tailMap(fromKey));
         }
-        
-        @Override
-        public SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedBy(key, offset, length));
-        }
 
         @Override
-        public SortedMap<K, V> getPrefixedBy(K key, int length) {
+        public SortedMap<K, V> prefixMap(K prefix) {
             return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedBy(key, length));
-        }
-
-        @Override
-        public SortedMap<K, V> getPrefixedBy(K key) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedBy(key));
-        }
-
-        @Override
-        public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedByBits(key, lengthInBits));
-        }
-        
-        @Override
-        public SortedMap<K, V> getPrefixedByBits(K key, int offsetInBits,
-                int lengthInBits) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
+                    delegate.prefixMap(prefix));
         }
 
         @Override

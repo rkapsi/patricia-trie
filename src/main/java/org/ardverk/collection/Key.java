@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2010 Roger Kapsi, Sam Berlin
+ * Copyright 2010 Roger Kapsi
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -17,13 +17,27 @@
 package org.ardverk.collection;
 
 /**
- * An abstract implementation of {@link KeyAnalyzer}.
+ * An interface that {@link PatriciaTrie} keys may implement.
  */
-public abstract class AbstractKeyAnalyzer<K> implements KeyAnalyzer<K> {
+public interface Key<K> {
     
-    @SuppressWarnings("unchecked")
-    @Override
-    public int compare(K o1, K o2) {
-        return ((Comparable<K>)o1).compareTo(o2);
-    }
+    /**
+     * Returns the key's length in bits.
+     */
+    public int lengthInBits();
+    
+    /**
+     * Returns {@code true} if the given bit is set.
+     */
+    public boolean isBitSet(int bitIndex);
+    
+    /**
+     * Returns the index of the first bit that is different in the two keys.
+     */
+    public int bitIndex(K otherKey);
+    
+    /**
+     * Returns {@code true} if this key is prefixed by the given key.
+     */
+    public boolean isPrefixedBy(K prefix);
 }

@@ -16,13 +16,15 @@
 
 package org.ardverk.collection;
 
+import java.io.Serializable;
+
 
 /**
  * A {@link KeyAnalyzer} for {@link Short}s
  */
-public class ShortKeyAnalyzer implements KeyAnalyzer<Short> {
+public class ShortKeyAnalyzer extends AbstractKeyAnalyzer<Short> implements Serializable {
     
-    private static final long serialVersionUID = -8631376733513512017L;
+    private static final long serialVersionUID = 5263816158638832817L;
 
     /**
      * A singleton instance of {@link ShortKeyAnalyzer}
@@ -30,14 +32,9 @@ public class ShortKeyAnalyzer implements KeyAnalyzer<Short> {
     public static final ShortKeyAnalyzer INSTANCE = new ShortKeyAnalyzer();
     
     /**
-     * The length of an {@link Short} in bits
-     */
-    public static final int LENGTH = Short.SIZE;
-    
-    /**
      * A bit mask where the first bit is 1 and the others are zero
      */
-    private static final int MSB = 0x8000;
+    private static final int MSB = 1 << Short.SIZE-1;
     
     /**
      * Returns a bit mask where the given bit is set
@@ -47,39 +44,27 @@ public class ShortKeyAnalyzer implements KeyAnalyzer<Short> {
     }
     
     @Override
-    public int bitsPerElement() {
-        return 1;
-    }
-        
-    @Override
     public int lengthInBits(Short key) {
-        return LENGTH;
+        return Byte.SIZE;
     }
-    
+
     @Override
-    public boolean isBitSet(Short key, int bitIndex, int lengthInBits) {
+    public boolean isBitSet(Short key, int bitIndex) {
         return (key & mask(bitIndex)) != 0;
     }
-    
+
     @Override
-    public int bitIndex(Short key, int offsetInBits, int lengthInBits, 
-            Short other, int otherOffsetInBits, int otherLengthInBits) {
-        
-        if (offsetInBits != 0 || otherOffsetInBits != 0) {
-            throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
-                    + ", otherOffsetInBits=" + otherOffsetInBits);
-        }
-        
-        int keyValue = key.shortValue();
+    public int bitIndex(Short key, Short otherKey) {
+        short keyValue = key.shortValue();
         if (keyValue == 0) {
             return NULL_BIT_KEY;
         }
 
-        int otherValue = (other != null ? other.shortValue() : 0);
+        short otherValue = otherKey.shortValue();
         
         if (keyValue != otherValue) {
             int xorValue = keyValue ^ otherValue;
-            for (int i = 0; i < LENGTH; i++) {
+            for (int i = 0; i < Short.SIZE; i++) {
                 if ((xorValue & mask(i)) != 0) {
                     return i;
                 }
@@ -88,24 +73,9 @@ public class ShortKeyAnalyzer implements KeyAnalyzer<Short> {
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-    
+
     @Override
-    public int compare(Short o1, Short o2) {
-        return o1.compareTo(o2);
-    }
-        
-    @Override
-    public boolean isPrefix(Short prefix, int offsetInBits, 
-            int lengthInBits, Short key) {
-        
-        int value1 = (prefix.shortValue() << offsetInBits);
-        int value2 = key.shortValue();
-        
-        int mask = 0;
-        for (int i = 0; i < lengthInBits; i++) {
-            mask |= (0x1 << i);
-        }
-        
-        return (value1 & mask) == (value2 & mask);
+    public boolean isPrefix(Short key, Short prefix) {
+        return key.equals(prefix);
     }
 }

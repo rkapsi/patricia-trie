@@ -16,41 +16,30 @@
 
 package org.ardverk.collection;
 
-/**
- * A {@link KeyAnalyzer} for byte[]s
- */
-public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> {
-    
-    private static final long serialVersionUID = 7382825097492285877L;
+import java.io.Serializable;
 
-    /**
-     * A singleton instance of {@link ByteArrayKeyAnalyzer}
-     */
-    public static final ByteArrayKeyAnalyzer INSTANCE 
-        = new ByteArrayKeyAnalyzer(Integer.MAX_VALUE);
+public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> 
+        implements Serializable {
     
-    /**
-     * The length of an {@link Byte} in bits
-     */
-    public static final int LENGTH = Byte.SIZE;
+    private static final long serialVersionUID = -3642547492709094018L;
+
+    private static final int DEFAULT_LENGTH = Integer.MAX_VALUE / Byte.SIZE;
+    
+    public static final ByteArrayKeyAnalyzer INSTANCE = new ByteArrayKeyAnalyzer();
     
     /**
      * A bit mask where the first bit is 1 and the others are zero
      */
-    private static final int MSB = 0x80;
+    private static final int MSB = 1 << Byte.SIZE-1;
     
-    /**
-     * A place holder for null
-     */
-    private static final byte[] NULL = new byte[0];
-    
-    /**
-     * The maximum length of a key in bits
-     */
     private final int maxLengthInBits;
     
+    public ByteArrayKeyAnalyzer() {
+        this(DEFAULT_LENGTH);
+    }
+    
     public ByteArrayKeyAnalyzer(int maxLengthInBits) {
-        if (maxLengthInBits < 0) {
+        if (maxLengthInBits < 0 || DEFAULT_LENGTH < maxLengthInBits) {
             throw new IllegalArgumentException(
                     "maxLengthInBits=" + maxLengthInBits);
         }
@@ -58,105 +47,8 @@ public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> {
         this.maxLengthInBits = maxLengthInBits;
     }
     
-    /**
-     * Returns a bit mask where the given bit is set
-     */
-    private static int mask(int bit) {
-        return MSB >>> bit;
-    }
-
-    /**
-     * Returns the maximum length of a key in bits
-     */
     public int getMaxLengthInBits() {
         return maxLengthInBits;
-    }
-    
-    @Override
-    public int bitsPerElement() {
-        return LENGTH;
-    }
-    
-    @Override
-    public int lengthInBits(byte[] key) {
-        return (key != null ? key.length * bitsPerElement() : 0);
-    }
-    
-    @Override
-    public boolean isBitSet(byte[] key, int bitIndex, int lengthInBits) {
-        if (key == null) {     
-            return false;
-        }
-        
-        int prefix = maxLengthInBits - lengthInBits;
-        int keyBitIndex = bitIndex - prefix;
-        
-        if (keyBitIndex >= lengthInBits || keyBitIndex < 0) {
-            return false;
-        }
-        
-        int index = (int)(keyBitIndex / LENGTH);
-        int bit = (int)(keyBitIndex % LENGTH);
-        return (key[index] & mask(bit)) != 0;
-    }
-    
-    @Override
-    public int bitIndex(byte[] key, int offsetInBits, int lengthInBits, 
-            byte[] other, int otherOffsetInBits, int otherLengthInBits) {
-        
-        if (other == null) {
-            other = NULL;
-        }
-        
-        boolean allNull = true;
-        int length = Math.max(lengthInBits, otherLengthInBits);
-        int prefix = maxLengthInBits - length;
-        
-        if (prefix < 0) {
-            return KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
-        }
-        
-        for (int i = 0; i < length; i++) {
-            int index = prefix + (offsetInBits + i);
-            boolean value = isBitSet(key, index, lengthInBits);
-                
-            if (value) {
-                allNull = false;
-            }
-            
-            int otherIndex = prefix + (otherOffsetInBits + i);
-            boolean otherValue = isBitSet(other, otherIndex, otherLengthInBits);
-            
-            if (value != otherValue) {
-                return index;
-            }
-        }
-        
-        if (allNull) {
-            return KeyAnalyzer.NULL_BIT_KEY;
-        }
-        
-        return KeyAnalyzer.EQUAL_BIT_KEY;
-    }
-    
-    @Override
-    public boolean isPrefix(byte[] prefix, int offsetInBits, 
-            int lengthInBits, byte[] key) {
-        
-        int keyLength = lengthInBits(key);
-        if (lengthInBits > keyLength) {
-            return false;
-        }
-        
-        int elements = lengthInBits - offsetInBits;
-        for (int i = 0; i < elements; i++) {
-            if (isBitSet(prefix, i+offsetInBits, lengthInBits) 
-                    != isBitSet(key, i, keyLength)) {
-                return false;
-            }
-        }
-        
-        return true;
     }
     
     @Override
@@ -179,5 +71,82 @@ public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> {
         }
 
         return 0;
+    }
+
+    @Override
+    public int lengthInBits(byte[] key) {
+        return key.length * Byte.SIZE;
+    }
+
+    @Override
+    public boolean isBitSet(byte[] key, int bitIndex) {
+        int lengthInBits = lengthInBits(key);
+        int prefix = maxLengthInBits - lengthInBits;
+        int keyBitIndex = bitIndex - prefix;
+        
+        if (keyBitIndex >= lengthInBits || keyBitIndex < 0) {
+            return false;
+        }
+        
+        int index = (int)(keyBitIndex / Byte.SIZE);
+        int bit = (int)(keyBitIndex % Byte.SIZE);
+        return (key[index] & mask(bit)) != 0;
+    }
+
+    @Override
+    public int bitIndex(byte[] key, byte[] otherKey) {
+        
+        int length1 = lengthInBits(key);
+        int length2 = lengthInBits(otherKey);
+        int length = Math.max(length1, length2);
+        int prefix = maxLengthInBits - length;
+                
+        if (prefix < 0) {
+            return KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
+        }
+        
+        boolean allNull = true;
+        for (int i = 0; i < length; i++) {
+            int bitIndex = prefix + i;
+            boolean value = isBitSet(key, bitIndex);
+                
+            if (value) {
+                allNull = false;
+            }
+            
+            boolean otherValue = isBitSet(otherKey, bitIndex);
+            
+            if (value != otherValue) {
+                return bitIndex;
+            }
+        }
+        
+        if (allNull) {
+            return KeyAnalyzer.NULL_BIT_KEY;
+        }
+        
+        return KeyAnalyzer.EQUAL_BIT_KEY;
+    }
+    
+    @Override
+    public boolean isPrefix(byte[] key, byte[] prefix) {
+        if (key.length < prefix.length) {
+            return false;
+        }
+        
+        for (int i = 0; i < prefix.length; i++) {
+            if (key[i] != prefix[i]) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Returns a bit mask where the given bit is set
+     */
+    private static int mask(int bit) {
+        return MSB >>> bit;
     }
 }

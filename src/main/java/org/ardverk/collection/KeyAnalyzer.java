@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2010 Roger Kapsi, Sam Berlin
+ * Copyright 2010 Roger Kapsi
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -16,64 +16,46 @@
 
 package org.ardverk.collection;
 
-import java.io.Serializable;
 import java.util.Comparator;
 
-/** 
- * Defines the interface to analyze {@link Trie} keys on a bit level. 
- * {@link KeyAnalyzer}'s methods return the length of the key in bits, 
- * whether or not a bit is set, and bits per element in the key. 
- * 
- * <p>Additionally, a method determines if a key is a prefix of another 
- * key and returns the bit index where one key is different from another 
- * key (if the key and found key are equal than the return value is 
- * {@link #EQUAL_BIT_KEY}).
- */
-public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
-    
-    /** 
-     * Returned by {@link #bitIndex(Object, int, int, Object, int, int)} 
-     * if key's bits are all 0 
+public interface KeyAnalyzer<K> extends Comparator<K> {
+
+    /**
+     * Returned by {@link #bitIndex(Object, Object)} if a key's
+     * bits were all zero (0).
      */
     public static final int NULL_BIT_KEY = -1;
     
     /** 
-     * Returned by {@link #bitIndex(Object, int, int, Object, int, int)} 
-     * if key and found key are equal. This is a very very specific case 
-     * and shouldn't happen on a regular basis
+     * Returned by {@link #bitIndex(Object, Object)} if a the
+     * bits of two keys were all equal.
      */
     public static final int EQUAL_BIT_KEY = -2;
     
+    /**
+     * Returned by {@link #bitIndex(Object, Object)} if a keys 
+     * indices are out of bounds.
+     */
     public static final int OUT_OF_BOUNDS_BIT_KEY = -3;
     
     /**
-     * Returns the number of bits per element in the key.
-     * This is only useful for variable-length keys, such as Strings.
-     */
-    public int bitsPerElement();
-    
-    /** 
-     * Returns the length of the Key in bits. 
+     * Returns the key's length in bits.
      */
     public int lengthInBits(K key);
     
-    /** 
-     * Returns whether or not a bit is set 
+    /**
+     * Returns {@code true} if a key's bit it set at the given index.
      */
-    public boolean isBitSet(K key, int bitIndex, int lengthInBits);
+    public boolean isBitSet(K key, int bitIndex);
     
     /**
-     * Returns the n-th different bit between key and found.
-     * This starts the comparison in key at 'keyStart' and goes
-     * for 'keyLength' bits, and compares to the found key
-     * starting at 'foundStart' and going for 'foundLength' bits.
+     * Returns the index of the first bit that is different in the two keys.
      */
-    public int bitIndex(K key, int offsetInBits, int lengthInBits, 
-            K other, int otherOffsetInBits, int otherLengthInBits);
+    public int bitIndex(K key, K otherKey);
     
     /**
-     * Determines whether or not the given prefix (from offset to length)
-     * is a prefix of the given key.
+     * Returns {@code true} if the second argument is a 
+     * prefix of the first argument.
      */
-    public boolean isPrefix(K prefix, int offsetInBits, int lengthInBits, K key);
+    public boolean isPrefix(K key, K prefix);
 }

@@ -138,50 +138,5 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * 'Analu', 'Andreas', 'Andrea', 'Andres', and 'Anatole', then
      * a lookup of 'And' would return 'Andreas', 'Andrea', and 'Andres'.
      */
-    public SortedMap<K, V> getPrefixedBy(K key);
-    
-    /**
-     * Returns a view of this {@link Trie} of all elements that are prefixed 
-     * by the length of the key.
-     * 
-     * <p>{@link Trie}s with fixed size keys will not support this operation 
-     * (because all keys are the same length).
-     * 
-     * <p>For example, if the {@link Trie} contains 'Anna', 'Anael', 'Analu', 
-     * 'Andreas', 'Andrea', 'Andres', and 'Anatole', then a lookup for 'Andrey' 
-     * and a length of 4 would return 'Andreas', 'Andrea', and 'Andres'.
-     */
-    public SortedMap<K, V> getPrefixedBy(K key, int length);
-    
-    /**
-     * Returns a view of this {@link Trie} of all elements that are prefixed
-     * by the key, starting at the given offset and for the given length.
-     * 
-     * <p>{@link Trie}s with fixed size keys will not support this operation 
-     * (because all keys are the same length).
-     * 
-     * <p>For example, if the {@link Trie} contains 'Anna', 'Anael', 'Analu', 
-     * 'Andreas', 'Andrea', 'Andres', and 'Anatole', then a lookup for 
-     * 'Hello Andrey Smith', an offset of 6 and a length of 4 would return 
-     * 'Andreas', 'Andrea', and 'Andres'.
-     */
-    public SortedMap<K, V> getPrefixedBy(K key, int offset, int length);
-    
-    /**
-     * Returns a view of this {@link Trie} of all elements that are prefixed
-     * by the number of bits in the given Key.
-     * 
-     * <p>In {@link Trie}s with fixed size keys like IP addresses this method
-     * can be used to lookup partial keys. That is you can lookup all addresses
-     * that begin with '192.168' by providing the key '192.168.X.X' and a 
-     * length of 16.
-     */
-    public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits);
-    
-    /**
-     * Returns a view of this {@link Trie} of all elements that are prefixed
-     * by the number of bits in the given Key.
-     */
-    public SortedMap<K, V> getPrefixedByBits(K key, 
-            int offsetInBits, int lengthInBits);
+    public SortedMap<K, V> prefixMap(K prefix);
 }

@@ -31,14 +31,13 @@ import org.ardverk.collection.Cursor.Decision;
  * This class implements the base PATRICIA algorithm and everything that
  * is related to the {@link Map} interface.
  */
-abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
+abstract class AbstractPatriciaTrie<K, V> extends AbstractTrie<K, V> {
     
-    private static final long serialVersionUID = 5155253417231339498L;
-
     /**
      * The root node of the {@link Trie}. 
      */
     final TrieEntry<K, V> root = new TrieEntry<K, V>(null, null, -1);
+    
     
     /**
      * Each of these fields are initialized to contain an instance of the
@@ -61,19 +60,22 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
      */
     transient int modCount = 0;
     
-    public PatriciaTrieBase(KeyAnalyzer<? super K> keyAnalyzer) {
+    public AbstractPatriciaTrie() {
+        super();
+    }
+    
+    public AbstractPatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer) {
         super(keyAnalyzer);
     }
     
-    /**
-     * Constructs a new {@link Trie} using the given {@link KeyAnalyzer} 
-     * and initializes the {@link Trie} with the values from the 
-     * provided {@link Map}.
-     */
-    public PatriciaTrieBase(KeyAnalyzer<? super K> keyAnalyzer, 
+    public AbstractPatriciaTrie(Map<? extends K, ? extends V> m) {
+        super();
+        putAll(m);
+    }
+    
+    public AbstractPatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer, 
             Map<? extends K, ? extends V> m) {
         super(keyAnalyzer);
-        
         putAll(m);
     }
     
@@ -141,7 +143,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             return root.setKeyValue(key, value);
         }
         
-        TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
+        TrieEntry<K, V> found = getNearestEntryForKey(key);
         if (compareKeys(key, found.key)) {
             if (found.isEmpty()) { // <- must be the root
                 incrementSize();
@@ -152,14 +154,14 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         }
         
         int bitIndex = bitIndex(key, found.key);
-        if (!AbstractKeyAnalyzer.isOutOfBoundsIndex(bitIndex)) {
-            if (AbstractKeyAnalyzer.isValidBitIndex(bitIndex)) { // in 99.999...9% the case
+        if (!Tries.isOutOfBoundsIndex(bitIndex)) {
+            if (Tries.isValidBitIndex(bitIndex)) { // in 99.999...9% the case
                 /* NEW KEY+VALUE TUPLE */
                 TrieEntry<K, V> t = new TrieEntry<K, V>(key, value, bitIndex);
-                addEntry(t, lengthInBits);
+                addEntry(t);
                 incrementSize();
                 return null;
-            } else if (AbstractKeyAnalyzer.isNullBitKey(bitIndex)) {
+            } else if (Tries.isNullBitKey(bitIndex)) {
                 // A bits of the Key are zero. The only place to
                 // store such a Key is the root Node!
                 
@@ -171,7 +173,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
                 }
                 return root.setKeyValue(key, value);
                 
-            } else if (AbstractKeyAnalyzer.isEqualBitKey(bitIndex)) {
+            } else if (Tries.isEqualBitKey(bitIndex)) {
                 // This is a very special and rare case.
                 
                 /* REPLACE OLD KEY+VALUE */
@@ -189,7 +191,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     /**
      * Adds the given {@link TrieEntry} to the {@link Trie}
      */
-    TrieEntry<K, V> addEntry(TrieEntry<K, V> entry, int lengthInBits) {
+    TrieEntry<K, V> addEntry(TrieEntry<K, V> entry) {
         TrieEntry<K, V> current = root.left;
         TrieEntry<K, V> path = root;
         while(true) {
@@ -197,7 +199,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
                     || current.bitIndex <= path.bitIndex) {
                 entry.predecessor = entry;
                 
-                if (!isBitSet(entry.key, entry.bitIndex, lengthInBits)) {
+                if (!isBitSet(entry.key, entry.bitIndex)) {
                     entry.left = entry;
                     entry.right = current;
                 } else {
@@ -215,7 +217,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
                     current.predecessor = entry;
                 }
          
-                if (path == root || !isBitSet(entry.key, path.bitIndex, lengthInBits)) {
+                if (path == root || !isBitSet(entry.key, path.bitIndex)) {
                     path.left = entry;
                 } else {
                     path.right = entry;
@@ -226,7 +228,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
                 
             path = current;
             
-            if (!isBitSet(entry.key, current.bitIndex, lengthInBits)) {
+            if (!isBitSet(entry.key, current.bitIndex)) {
                 current = current.left;
             } else {
                 current = current.right;
@@ -242,28 +244,26 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
 
     /**
      * Returns the entry associated with the specified key in the
-     * PatriciaTrieBase.  Returns null if the map contains no mapping
+     * AbstractPatriciaTrie.  Returns null if the map contains no mapping
      * for this key.
      * 
      * This may throw ClassCastException if the object is not of type K.
      */
     TrieEntry<K,V> getEntry(Object k) {
-        K key = castKey(k);
+        K key = Tries.cast(k);
         if (key == null) {
             return null;
         }
         
-        int lengthInBits = lengthInBits(key);
-        TrieEntry<K,V> entry = getNearestEntryForKey(key, lengthInBits);
+        TrieEntry<K,V> entry = getNearestEntryForKey(key);
         return !entry.isEmpty() && compareKeys(key, entry.key) ? entry : null;
     }
     
     @Override
     public Map.Entry<K, V> select(K key) {
-        int lengthInBits = lengthInBits(key);
         Reference<Map.Entry<K, V>> reference 
             = new Reference<Map.Entry<K,V>>();
-        if (!selectR(root.left, -1, key, lengthInBits, reference)) {
+        if (!selectR(root.left, -1, key, reference)) {
             return reference.get();
         }
         return null;
@@ -271,10 +271,9 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     
     @Override
     public Map.Entry<K,V> select(K key, Cursor<? super K, ? super V> cursor) {
-        int lengthInBits = lengthInBits(key);
         Reference<Map.Entry<K, V>> reference 
             = new Reference<Map.Entry<K,V>>();
-        selectR(root.left, -1, key, lengthInBits, cursor, reference);
+        selectR(root.left, -1, key, cursor, reference);
         return reference.get();
     }
 
@@ -285,8 +284,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
      * {@link Trie}.
      */
     private boolean selectR(TrieEntry<K, V> h, int bitIndex, 
-            final K key, final int lengthInBits, 
-            final Reference<Map.Entry<K, V>> reference) {
+            final K key, final Reference<Map.Entry<K, V>> reference) {
         
         if (h.bitIndex <= bitIndex) {
             // If we hit the root Node and it is empty
@@ -299,13 +297,13 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             return true;
         }
 
-        if (!isBitSet(key, h.bitIndex, lengthInBits)) {
-            if (selectR(h.left, h.bitIndex, key, lengthInBits, reference)) {
-                return selectR(h.right, h.bitIndex, key, lengthInBits, reference);
+        if (!isBitSet(key, h.bitIndex)) {
+            if (selectR(h.left, h.bitIndex, key, reference)) {
+                return selectR(h.right, h.bitIndex, key, reference);
             }
         } else {
-            if (selectR(h.right, h.bitIndex, key, lengthInBits, reference)) {
-                return selectR(h.left, h.bitIndex, key, lengthInBits, reference);
+            if (selectR(h.right, h.bitIndex, key, reference)) {
+                return selectR(h.left, h.bitIndex, key, reference);
             }
         }
         return false;
@@ -315,9 +313,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
      * 
      */
     private boolean selectR(TrieEntry<K,V> h, int bitIndex, 
-            final K key, 
-            final int lengthInBits,
-            final Cursor<? super K, ? super V> cursor,
+            final K key, final Cursor<? super K, ? super V> cursor,
             final Reference<Map.Entry<K, V>> reference) {
 
         if (h.bitIndex <= bitIndex) {
@@ -343,13 +339,13 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             return true; // continue
         }
 
-        if (!isBitSet(key, h.bitIndex, lengthInBits)) {
-            if (selectR(h.left, h.bitIndex, key, lengthInBits, cursor, reference)) {
-                return selectR(h.right, h.bitIndex, key, lengthInBits, cursor, reference);
+        if (!isBitSet(key, h.bitIndex)) {
+            if (selectR(h.left, h.bitIndex, key, cursor, reference)) {
+                return selectR(h.right, h.bitIndex, key, cursor, reference);
             }
         } else {
-            if (selectR(h.right, h.bitIndex, key, lengthInBits, cursor, reference)) {
-                return selectR(h.left, h.bitIndex, key, lengthInBits, cursor, reference);
+            if (selectR(h.right, h.bitIndex, key, cursor, reference)) {
+                return selectR(h.left, h.bitIndex, key, cursor, reference);
             }
         }
         
@@ -389,9 +385,8 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             return false;
         }
         
-        K key = castKey(k);
-        int lengthInBits = lengthInBits(key);
-        TrieEntry<K, V> entry = getNearestEntryForKey(key, lengthInBits);
+        K key = Tries.cast(k);
+        TrieEntry<K, V> entry = getNearestEntryForKey(key);
         return !entry.isEmpty() && compareKeys(key, entry.key);
     }
     
@@ -430,8 +425,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             return null;
         }
         
-        K key = castKey(k);
-        int lengthInBits = lengthInBits(key);        
+        K key = Tries.cast(k);
         TrieEntry<K, V> current = root.left;
         TrieEntry<K, V> path = root;
         while (true) {
@@ -445,7 +439,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             
             path = current;
             
-            if (!isBitSet(key, current.bitIndex, lengthInBits)) {
+            if (!isBitSet(key, current.bitIndex)) {
                 current = current.left;
             } else {
                 current = current.right;
@@ -462,7 +456,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
      * selectR but with the exception that it might return the
      * root Entry even if it's empty.
      */
-    TrieEntry<K, V> getNearestEntryForKey(K key, int lengthInBits) {
+    TrieEntry<K, V> getNearestEntryForKey(K key) {
         TrieEntry<K, V> current = root.left;
         TrieEntry<K, V> path = root;
         while(true) {
@@ -471,7 +465,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             }
             
             path = current;
-            if (!isBitSet(key, current.bitIndex, lengthInBits)) {
+            if (!isBitSet(key, current.bitIndex)) {
                 current = current.left;
             } else {
                 current = current.right;
@@ -948,18 +942,18 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         @Override
         public boolean remove(Object o) {
             int size = size();
-            PatriciaTrieBase.this.remove(o);
+            AbstractPatriciaTrie.this.remove(o);
             return size != size();
         }
         
         @Override
         public int size() {
-            return PatriciaTrieBase.this.size();
+            return AbstractPatriciaTrie.this.size();
         }
         
         @Override
         public void clear() {
-            PatriciaTrieBase.this.clear();
+            AbstractPatriciaTrie.this.clear();
         }
         
         /**
@@ -986,7 +980,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         
         @Override
         public int size() {
-            return PatriciaTrieBase.this.size();
+            return AbstractPatriciaTrie.this.size();
         }
         
         @Override
@@ -997,13 +991,13 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         @Override
         public boolean remove(Object o) {
             int size = size();
-            PatriciaTrieBase.this.remove(o);
+            AbstractPatriciaTrie.this.remove(o);
             return size != size();
         }
         
         @Override
         public void clear() {
-            PatriciaTrieBase.this.clear();
+            AbstractPatriciaTrie.this.clear();
         }
         
         /**
@@ -1030,7 +1024,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         
         @Override
         public int size() {
-            return PatriciaTrieBase.this.size();
+            return AbstractPatriciaTrie.this.size();
         }
         
         @Override
@@ -1040,14 +1034,14 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         
         @Override
         public void clear() {
-            PatriciaTrieBase.this.clear();
+            AbstractPatriciaTrie.this.clear();
         }
         
         @Override
         public boolean remove(Object o) {
             for (Iterator<V> it = iterator(); it.hasNext(); ) {
                 V value = it.next();
-                if (Objects.areEqual(value, o)) {
+                if (Tries.areEqual(value, o)) {
                     it.remove();
                     return true;
                 }
@@ -1074,7 +1068,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         /**
          * For fast-fail
          */
-        protected int expectedModCount = PatriciaTrieBase.this.modCount;
+        protected int expectedModCount = AbstractPatriciaTrie.this.modCount;
         
         protected TrieEntry<K, V> next; // the next node to return
         protected TrieEntry<K, V> current; // the current entry we're on
@@ -1083,7 +1077,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
          * Starts iteration from the root
          */
         protected TrieIterator() {
-            next = PatriciaTrieBase.this.nextEntry(null);
+            next = AbstractPatriciaTrie.this.nextEntry(null);
         }
         
         /**
@@ -1097,7 +1091,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
          * Returns the next {@link TrieEntry}
          */
         protected TrieEntry<K,V> nextEntry() { 
-            if (expectedModCount != PatriciaTrieBase.this.modCount) {
+            if (expectedModCount != AbstractPatriciaTrie.this.modCount) {
                 throw new ConcurrentModificationException();
             }
             
@@ -1115,7 +1109,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
          * @see PatriciaTrie#nextEntry(TrieEntry)
          */
         protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
-            return PatriciaTrieBase.this.nextEntry(prior);
+            return AbstractPatriciaTrie.this.nextEntry(prior);
         }
         
         @Override
@@ -1129,15 +1123,15 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
                 throw new IllegalStateException();
             }
             
-            if (expectedModCount != PatriciaTrieBase.this.modCount) {
+            if (expectedModCount != AbstractPatriciaTrie.this.modCount) {
                 throw new ConcurrentModificationException();
             }
             
             TrieEntry<K, V> node = current;
             current = null;
-            PatriciaTrieBase.this.removeEntry(node);
+            AbstractPatriciaTrie.this.removeEntry(node);
             
-            expectedModCount = PatriciaTrieBase.this.modCount;
+            expectedModCount = AbstractPatriciaTrie.this.modCount;
         }
     }
 }

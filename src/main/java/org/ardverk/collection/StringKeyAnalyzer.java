@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2010 Roger Kapsi, Sam Berlin
+ * Copyright 2010 Roger Kapsi
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -16,27 +16,19 @@
 
 package org.ardverk.collection;
 
-/**
- * An {@link KeyAnalyzer} for {@link String}s
- */
-public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
+import java.io.Serializable;
+
+public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> 
+        implements Serializable {
     
-    private static final long serialVersionUID = -7032449491269434877L;
-    
-    /**
-     * A singleton instance of {@link StringKeyAnalyzer}
-     */
+    private static final long serialVersionUID = -4927553200563548034L;
+
     public static final StringKeyAnalyzer INSTANCE = new StringKeyAnalyzer();
-    
+
     /**
-     * The number of bits per {@link Character}
+     * A 16-bit mask where the MSB bit is 1 and the others are zero
      */
-    public static final int LENGTH = Character.SIZE;
-    
-    /**
-     * A bit mask where the first bit is 1 and the others are zero
-     */
-    private static final int MSB = 0x8000;
+    private static final int MSB = 1 << Character.SIZE-1;
     
     /**
      * Returns a bit mask where the given bit is set
@@ -44,63 +36,54 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
     private static int mask(int bit) {
         return MSB >>> bit;
     }
-        
-    @Override
-    public int bitsPerElement() {
-        return LENGTH;
-    }
-        
+    
     @Override
     public int lengthInBits(String key) {
-        return (key != null ? key.length() * LENGTH : 0);
+        return key.length() * Character.SIZE;
     }
-        
+
     @Override
-    public int bitIndex(String key, int offsetInBits, int lengthInBits,
-            String other, int otherOffsetInBits, int otherLengthInBits) {
-        boolean allNull = true;
-        
-        if (offsetInBits % LENGTH != 0 || otherOffsetInBits % LENGTH != 0 
-                || lengthInBits % LENGTH != 0 || otherLengthInBits % LENGTH != 0) {
-            throw new IllegalArgumentException(
-                    "The offsets and lengths must be at Character boundaries");
+    public boolean isBitSet(String key, int bitIndex) {
+        if (bitIndex >= lengthInBits(key)) {
+            return false;
         }
         
+        int index = (int)(bitIndex / Character.SIZE);
+        int bit = (int)(bitIndex % Character.SIZE);
         
-        int beginIndex1 = offsetInBits / LENGTH;
-        int beginIndex2 = otherOffsetInBits / LENGTH;
+        return (key.charAt(index) & mask(bit)) != 0;
+    }
+
+    @Override
+    public int bitIndex(String key, String otherKey) {
         
-        int endIndex1 = beginIndex1 + lengthInBits / LENGTH;
-        int endIndex2 = beginIndex2 + otherLengthInBits / LENGTH;
+        boolean allNull = true;
         
-        int length = Math.max(endIndex1, endIndex2);
+        int length1 = key.length();
+        int length2 = otherKey.length();
         
-        // Look at each character, and if they're different
-        // then figure out which bit makes the difference
-        // and return it.
-        char k = 0, f = 0;
-        for(int i = 0; i < length; i++) {
-            int index1 = beginIndex1 + i;
-            int index2 = beginIndex2 + i;
-            
-            if (index1 >= endIndex1) {
-                k = 0;
+        int length = Math.max(length1, length2);
+        
+        char ch1, ch2 = 0;
+        for (int i = 0; i < length; i++) {
+            if (i < length1) {
+                ch1 = key.charAt(i);
             } else {
-                k = key.charAt(index1);
+                ch1 = 0;                
             }
             
-            if (other == null || index2 >= endIndex2) {
-                f = 0;
+            if (i < length2) {
+                ch2 = otherKey.charAt(i);
             } else {
-                f = other.charAt(index2);
+                ch2 = 0;
             }
             
-            if (k != f) {
-               int x = k ^ f;
-               return i * LENGTH + (Integer.numberOfLeadingZeros(x) - LENGTH);
+            if (ch1 != ch2) {
+                int x = ch1 ^ ch2;
+                return i * Character.SIZE + (Integer.numberOfLeadingZeros(x) - Character.SIZE);
             }
             
-            if (k != 0) {
+            if (ch1 != 0) {
                 allNull = false;
             }
         }
@@ -113,28 +96,9 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
         // Both keys are equal
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-        
+
     @Override
-    public boolean isBitSet(String key, int bitIndex, int lengthInBits) {
-        if (key == null || bitIndex >= lengthInBits) {
-            return false;
-        }
-        
-        int index = (int)(bitIndex / LENGTH);
-        int bit = (int)(bitIndex % LENGTH);
-        
-        return (key.charAt(index) & mask(bit)) != 0;
-    }
-        
-    @Override
-    public boolean isPrefix(String prefix, int offsetInBits, 
-            int lengthInBits, String key) {
-        if (offsetInBits % LENGTH != 0 || lengthInBits % LENGTH != 0) {
-            throw new IllegalArgumentException(
-                    "Cannot determine prefix outside of Character boundaries");
-        }
-    
-        String s1 = prefix.substring(offsetInBits / LENGTH, lengthInBits / LENGTH);
-        return key.startsWith(s1);
+    public boolean isPrefix(String key, String prefix) {
+        return key.startsWith(prefix);
     }
 }

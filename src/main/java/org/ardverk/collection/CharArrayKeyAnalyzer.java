@@ -16,129 +16,142 @@
 
 package org.ardverk.collection;
 
+import java.io.Serializable;
+
 /**
  * An {@link KeyAnalyzer} for {@code char[]}s
  */
-public class CharArrayKeyAnalyzer extends AbstractKeyAnalyzer<char[]> {
+public class CharArrayKeyAnalyzer extends AbstractKeyAnalyzer<char[]> implements Serializable {
     
-    private static final long serialVersionUID = -8167897361549463457L;
+    private static final long serialVersionUID = -253675854844425270L;
+
+    private static final int DEFAULT_LENGTH = Integer.MAX_VALUE / Character.SIZE;
 
     /**
      * A singleton instance of {@link CharArrayKeyAnalyzer}
      */
     public static final CharArrayKeyAnalyzer INSTANCE = new CharArrayKeyAnalyzer();
-
-    /**
-     * The number of bits per {@link Character}
-     */
-    public static final int LENGTH = Character.SIZE;
-
+    
     /**
      * A bit mask where the first bit is 1 and the others are zero
      */
     private static final int MSB = 0x8000;
+    
+    private final int maxLengthInBits;
+    
+    public CharArrayKeyAnalyzer() {
+        this(DEFAULT_LENGTH);
+    }
+    
+    public CharArrayKeyAnalyzer(int maxLengthInBits) {
+        if (maxLengthInBits < 0 || DEFAULT_LENGTH < maxLengthInBits) {
+            throw new IllegalArgumentException(
+                    "maxLengthInBits=" + maxLengthInBits);
+        }
+        
+        this.maxLengthInBits = maxLengthInBits;
+    }
+    
+    public int getMaxLengthInBits() {
+        return maxLengthInBits;
+    }
+    
+    @Override
+    public int compare(char[] o1, char[] o2) {
+        if (o1 == null) {
+            return (o2 == null) ? 0 : -1;
+        } else if (o2 == null) {
+            return (o1 == null) ? 0 : 1;
+        }
+        
+        if (o1.length != o2.length) {
+            return o1.length - o2.length;
+        }
+        
+        for (int i = 0; i < o1.length; i++) {
+            int diff = (o1[i] & 0xFF) - (o2[i] & 0xFF);
+            if (diff != 0) {
+                return diff;
+            }
+        }
+
+        return 0;
+    }
+
+    @Override
+    public int lengthInBits(char[] key) {
+        return key.length * Character.SIZE;
+    }
+
+    @Override
+    public boolean isBitSet(char[] key, int bitIndex) {
+        int lengthInBits = lengthInBits(key);
+        int prefix = maxLengthInBits - lengthInBits;
+        int keyBitIndex = bitIndex - prefix;
+        
+        if (keyBitIndex >= lengthInBits || keyBitIndex < 0) {
+            return false;
+        }
+        
+        int index = (int)(keyBitIndex / Character.SIZE);
+        int bit = (int)(keyBitIndex % Character.SIZE);
+        return (key[index] & mask(bit)) != 0;
+    }
+
+    @Override
+    public int bitIndex(char[] key, char[] otherKey) {
+        
+        int length1 = lengthInBits(key);
+        int length2 = lengthInBits(otherKey);
+        int length = Math.max(length1, length2);
+        int prefix = maxLengthInBits - length;
+                
+        if (prefix < 0) {
+            return KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
+        }
+        
+        boolean allNull = true;
+        for (int i = 0; i < length; i++) {
+            int bitIndex = prefix + i;
+            boolean value = isBitSet(key, bitIndex);
+                
+            if (value) {
+                allNull = false;
+            }
+            
+            boolean otherValue = isBitSet(otherKey, bitIndex);
+            
+            if (value != otherValue) {
+                return bitIndex;
+            }
+        }
+        
+        if (allNull) {
+            return KeyAnalyzer.NULL_BIT_KEY;
+        }
+        
+        return KeyAnalyzer.EQUAL_BIT_KEY;
+    }
+    
+    @Override
+    public boolean isPrefix(char[] key, char[] prefix) {
+        if (key.length < prefix.length) {
+            return false;
+        }
+        
+        for (int i = 0; i < prefix.length; i++) {
+            if (key[i] != prefix[i]) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
 
     /**
      * Returns a bit mask where the given bit is set
      */
     private static int mask(int bit) {
         return MSB >>> bit;
-    }
-    
-    @Override
-    public int bitsPerElement() {
-        return LENGTH;
-    }
-    
-    @Override
-    public int lengthInBits(char[] key) {
-        return (key != null ? key.length * LENGTH : 0);
-    }
-    
-    @Override
-    public int bitIndex(char[] key, int offsetInBits, int lengthInBits,
-            char[] other, int otherOffsetInBits, int otherLengthInBits) {
-        boolean allNull = true;
-
-        if (offsetInBits % LENGTH != 0 || otherOffsetInBits % LENGTH != 0
-                || lengthInBits % LENGTH != 0 || otherLengthInBits % LENGTH != 0) {
-            throw new IllegalArgumentException(
-                    "The offsets and lengths must be at Character boundaries");
-        }
-
-
-        int beginIndex1 = offsetInBits / LENGTH;
-        int beginIndex2 = otherOffsetInBits / LENGTH;
-
-        int endIndex1 = beginIndex1 + lengthInBits / LENGTH;
-        int endIndex2 = beginIndex2 + otherLengthInBits / LENGTH;
-
-        int length = Math.max(endIndex1, endIndex2);
-
-        // Look at each character, and if they're different
-        // then figure out which bit makes the difference
-        // and return it.
-        char k = 0, f = 0;
-        for(int i = 0; i < length; i++) {
-            int index1 = beginIndex1 + i;
-            int index2 = beginIndex2 + i;
-
-            if (index1 >= endIndex1) {
-                k = 0;
-            } else {
-                k = key[index1];
-            }
-
-            if (other == null || index2 >= endIndex2) {
-                f = 0;
-            } else {
-                f = other[index2];
-            }
-
-            if (k != f) {
-               int x = k ^ f;
-               return i * LENGTH + (Integer.numberOfLeadingZeros(x) - LENGTH);
-            }
-
-            if (k != 0) {
-                allNull = false;
-            }
-        }
-
-        // All bits are 0
-        if (allNull) {
-            return KeyAnalyzer.NULL_BIT_KEY;
-        }
-
-        // Both keys are equal
-        return KeyAnalyzer.EQUAL_BIT_KEY;
-    }
-    
-    @Override
-    public boolean isBitSet(char[] key, int bitIndex, int lengthInBits) {
-        if (key == null || bitIndex >= lengthInBits) {
-            return false;
-        }
-
-        int index = (int)(bitIndex / LENGTH);
-        int bit = (int)(bitIndex % LENGTH);
-
-        return (key[index] & mask(bit)) != 0;
-    }
-    
-    @Override
-    public boolean isPrefix(char[] prefix, int offsetInBits,
-            int lengthInBits, char[] key) {
-        if (offsetInBits % LENGTH != 0 || lengthInBits % LENGTH != 0) {
-            throw new IllegalArgumentException(
-                    "Cannot determine prefix outside of Character boundaries");
-        }
-
-        int off = offsetInBits / LENGTH;
-        int len = lengthInBits / LENGTH;
-        for (int i = 0; i < len; i ++) {
-            if (prefix[i + off] != key[i]) return false;
-        }
-        return true;
     }
 }
