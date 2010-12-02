@@ -53,11 +53,6 @@ import java.util.SortedMap;
  * {@link KeyAnalyzer} returning true or false for a bit being set or not in 
  * a given key.
  * 
- * <p>This PATRICIA {@link Trie} supports both variable length & fixed length 
- * keys. Some methods, such as {@link #prefixMap(Object)} are suited only 
- * to variable length keys, whereas {@link #getPrefixedByBits(Object, int)} is 
- * suited to fixed-size keys.
- * 
  * <p>Any methods here that take an {@link Object} argument may throw a 
  * {@link ClassCastException} if the method is expecting an instance of K 
  * and it isn't K.

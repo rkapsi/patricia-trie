@@ -31,7 +31,7 @@ import org.ardverk.collection.Cursor.Decision;
 public interface Trie<K, V> extends SortedMap<K, V> {
 
     /**
-     * Returns the {@link Entry} whose key is closest in a bitwise XOR 
+     * Returns the {@link Map.Entry} whose key is closest in a bitwise XOR 
      * metric to the given key. This is NOT lexicographic closeness.
      * For example, given the keys:
      *
@@ -45,7 +45,7 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * return 'L', because the XOR distance between D &amp; L is smaller 
      * than the XOR distance between D &amp; H. 
      * 
-     * @return The {@link Entry} whose key is closest in a bitwise XOR metric
+     * @return The {@link Map.Entry} whose key is closest in a bitwise XOR metric
      * to the provided key.
      */
     public Map.Entry<K, V> select(K key);

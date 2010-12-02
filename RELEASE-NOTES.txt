@@ -2,8 +2,16 @@
 
 Version History
 
+*** 0.3 ***
+- Simplifying the KeyAnalyzer interface
+- Adding a new Key interface
+- Changing some Trie interfaces
+- Switching to Java 6
+
+NOTE: This version is not backwards compatible to 0.2!
+
 *** 0.2 ***
-Adding CharArrayKeyAnalizer (contributed by David Lloyd)
+- Adding CharArrayKeyAnalizer (contributed by David Lloyd)
 
 *** 0.1 *** 
-Initial Release
+- Initial Release

@@ -250,7 +250,7 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractTrie<K, V> {
      * This may throw ClassCastException if the object is not of type K.
      */
     TrieEntry<K,V> getEntry(Object k) {
-        K key = Tries.cast(k);
+        K key = Tries.<K>cast(k);
         if (key == null) {
             return null;
         }
@@ -385,7 +385,7 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractTrie<K, V> {
             return false;
         }
         
-        K key = Tries.cast(k);
+        K key = Tries.<K>cast(k);
         TrieEntry<K, V> entry = getNearestEntryForKey(key);
         return !entry.isEmpty() && compareKeys(key, entry.key);
     }
@@ -425,7 +425,7 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractTrie<K, V> {
             return null;
         }
         
-        K key = Tries.cast(k);
+        K key = Tries.<K>cast(k);
         TrieEntry<K, V> current = root.left;
         TrieEntry<K, V> path = root;
         while (true) {
