@@ -18,6 +18,9 @@ package org.ardverk.collection;
 
 import java.io.Serializable;
 
+/**
+ * A {@link KeyAnalyzer} for {@code byte[]}s
+ */
 public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> 
         implements Serializable {
     

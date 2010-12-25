@@ -18,6 +18,9 @@ package org.ardverk.collection;
 
 import java.io.Serializable;
 
+/**
+ * A {@link KeyAnalyzer} for {@link Integer}s.
+ */
 public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> implements Serializable {
     
     private static final long serialVersionUID = 8805465126366464399L;

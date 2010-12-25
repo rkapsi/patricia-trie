@@ -18,6 +18,9 @@ package org.ardverk.collection;
 
 import java.io.Serializable;
 
+/**
+ * A {@link KeyAnalyzer} for {@link String}s.
+ */
 public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> 
         implements Serializable {
     

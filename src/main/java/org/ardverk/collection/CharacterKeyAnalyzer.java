@@ -18,6 +18,9 @@ package org.ardverk.collection;
 
 import java.io.Serializable;
 
+/**
+ * A {@link KeyAnalyzer} for {@link Character}s.
+ */
 public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> implements Serializable {
     
     private static final long serialVersionUID = 7768219441533281842L;

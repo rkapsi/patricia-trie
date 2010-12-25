@@ -18,6 +18,10 @@ package org.ardverk.collection;
 
 import java.util.Comparator;
 
+/**
+ * The {@link KeyAnalyzer} provides bit-level access to keys
+ * for the {@link PatriciaTrie}.
+ */
 public interface KeyAnalyzer<K> extends Comparator<K> {
 
     /**

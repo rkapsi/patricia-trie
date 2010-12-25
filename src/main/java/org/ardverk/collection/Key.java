@@ -18,6 +18,9 @@ package org.ardverk.collection;
 
 /**
  * An interface that {@link PatriciaTrie} keys may implement.
+ * 
+ * @see KeyAnalyzer
+ * @see DefaultKeyAnalyzer
  */
 public interface Key<K> {
     
