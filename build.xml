@@ -4,43 +4,33 @@
 	
 	<property name="patricia-trie" value="patricia-trie-${version}"/>
 	
-	<property name="build" location="build"/>
-	<property name="dist" location="dist/${patricia-trie}"/>
+	<property name="build.dir" location="build"/>
+	<property name="dist.dir" location="dist/${patricia-trie}"/>
 	
-	<property name="src" location="src/main/java"/>
-	<property name="rsrc" location="resources/main/java"/>
+	<property name="src.dir" location="src/main/java"/>
 	
+	<property name="classes.dir" location="${build.dir}/classes"/>
+	<property name="lib.dir" location="${build.dir}/lib"/>
 	
-	<property name="build.classes" location="${build}/classes"/>
-	<property name="build.resources" location="${build}/resources"/>
-	<property name="build.lib" location="${build}/lib"/>
-	
-	<property name="patricia-trie-jar" location="${build.lib}/${patricia-trie}.jar"/>
+	<property name="patricia-trie-jar" location="${lib.dir}/${patricia-trie}.jar"/>
 		
 	<target name="init">
 		<tstamp/>
 	</target>
 	
 	<target name="build" depends="init">
-		<mkdir dir="${build.classes}"/>
-		<javac srcdir="${src}" 
-			destdir="${build.classes}"
+		<mkdir dir="${classes.dir}"/>
+		<javac srcdir="${src.dir}" 
+			destdir="${classes.dir}"
 			source="1.6"
 			target="1.6"/>
-		
-		<mkdir dir="${build.resources}"/>
-		<copy todir="${build.resources}" failonerror="false">
-    		<fileset dir="${rsrc}"/>
-	  	</copy>
 	</target>
 	
 	<target name="jar" depends="clean, build">
-		<mkdir dir="${build.lib}"/>
+		<mkdir dir="${lib.dir}"/>
 		
 		<jar jarfile="${patricia-trie-jar}">
-			<fileset dir="${build.classes}"/>
-	    	<fileset dir="${build.resources}"/>
-			
+			<fileset dir="${classes.dir}"/>
 			<manifest>
 				<attribute name="Built-By" value="${user.name}"/>
 				<attribute name="Implementation-Title" value="Patricia Trie"/>
@@ -49,16 +39,16 @@
 	</target>
 	
 	<target name="dist" depends="jar">
-		<mkdir dir="${dist}"/>
-		<copy file="LICENSE-2.0.txt" todir="${dist}"/>
-		<copy file="RELEASE-NOTES.txt" todir="${dist}"/>
-		<copy file="${patricia-trie-jar}" todir="${dist}"/>
+		<mkdir dir="${dist.dir}"/>
+		<copy file="LICENSE-2.0.txt" todir="${dist.dir}"/>
+		<copy file="RELEASE-NOTES.txt" todir="${dist.dir}"/>
+		<copy file="${patricia-trie-jar}" todir="${dist.dir}"/>
 		
 		<property name="javadoc.dir" location="/home/roger/Desktop/docs/api"/>
 		
 		<javadoc
-			sourcepath="${src}"
-			destdir="${dist}/api"
+			sourcepath="${src.dir}"
+			destdir="${dist.dir}/api"
 			author="true"
 			version="true"
 			use="true"
@@ -71,7 +61,7 @@
 	</target>
 	
 	<target name="clean">
-		<delete dir="${build}"/>
-		<delete dir="${dist}"/>
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
 	</target>
 </project>
