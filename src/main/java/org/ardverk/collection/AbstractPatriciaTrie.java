@@ -33,11 +33,12 @@ import org.ardverk.collection.Cursor.Decision;
  */
 abstract class AbstractPatriciaTrie<K, V> extends AbstractTrie<K, V> {
     
+    private static final long serialVersionUID = -2303909182832019043L;
+
     /**
      * The root node of the {@link Trie}. 
      */
     final TrieEntry<K, V> root = new TrieEntry<K, V>(null, null, -1);
-    
     
     /**
      * Each of these fields are initialized to contain an instance of the

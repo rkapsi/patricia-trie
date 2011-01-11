@@ -1,6 +1,6 @@
 <project name="patricia-trie" default="dist" basedir=".">
 	
-	<property name="version" value="0.3"/>
+	<property name="version" value="0.4"/>
 	
 	<property name="dist.name" value="${ant.project.name}-${version}"/>
 	

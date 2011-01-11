@@ -64,7 +64,8 @@ import java.util.SortedMap;
  * @author Roger Kapsi
  * @author Sam Berlin
  */
-public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> implements Serializable {
+public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> 
+        implements Serializable {
     
     private static final long serialVersionUID = -2246014692353432660L;
 

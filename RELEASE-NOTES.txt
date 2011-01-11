@@ -2,6 +2,9 @@
 
 Version History
 
+*** 0.4 ***
+- Fix for Serialization (found thanks to gunebakan)
+
 *** 0.3 ***
 - Simplifying the KeyAnalyzer interface
 - Adding a new Key interface
