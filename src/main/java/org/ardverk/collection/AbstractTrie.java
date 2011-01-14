@@ -152,20 +152,15 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
         
         protected V value;
         
-        private final int hashCode;
+        private transient int hashCode = 0;
         
         public BasicEntry(K key) {
             this.key = key;
-            
-            this.hashCode = (key != null ? key.hashCode() : 0);
         }
         
         public BasicEntry(K key, V value) {
             this.key = key;
             this.value = value;
-            
-            this.hashCode = (key != null ? key.hashCode() : 0)
-                    ^ (value != null ? value.hashCode() : 0);
         }
         
         /**
@@ -174,6 +169,7 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
          */
         public V setKeyValue(K key, V value) {
             this.key = key;
+            this.hashCode = 0;
             return setValue(value);
         }
         
@@ -196,6 +192,11 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
         
         @Override
         public int hashCode() {
+
+            if(hashCode == 0) {
+                hashCode = (key != null ? key.hashCode() : 0);
+            }
+
             return hashCode;
         }
         
