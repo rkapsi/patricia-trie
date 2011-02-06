@@ -992,10 +992,6 @@ public class PatriciaTrieTest {
             }
         }
         
-        void selectFor(Object object) {
-            selectFor = object;
-        }
-        
         void addToRemove(Object... objects) {
             toRemove = new ArrayList<Object>(Arrays.asList(objects));
         }

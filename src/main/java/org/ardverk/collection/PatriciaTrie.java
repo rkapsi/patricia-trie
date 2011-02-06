@@ -831,9 +831,9 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V>
 
         private final RangeMap delegate;
 
-        private transient int size = -1;
+        private int size = -1;
 
-        private transient int expectedModCount;
+        private int expectedModCount = -1;
 
         /**
          * Creates a {@link RangeEntrySet}
@@ -970,7 +970,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V>
         
         private K toKey = null;
         
-        private transient int expectedModCount = 0;
+        private int expectedModCount = -1;
         
         private int size = -1;
         
@@ -1141,7 +1141,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V>
         
         private TrieEntry<K, V> prefixStart;
         
-        private int expectedModCount = 0;
+        private int expectedModCount = -1;
         
         /**
          * Creates a {@link PrefixRangeEntrySet}
