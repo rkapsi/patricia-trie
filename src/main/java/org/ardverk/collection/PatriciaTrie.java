@@ -93,9 +93,8 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V>
     
     @Override
     public SortedMap<K, V> prefixMap(K prefix) {
-        
-        int lengthInBits2 = lengthInBits(prefix);
-        if (lengthInBits2 == 0) {
+        int lengthInBits = lengthInBits(prefix);
+        if (lengthInBits == 0) {
             return this;
         }
         
