@@ -2,8 +2,12 @@
 
 Version History
 
+*** 0.5 ***
+
+- Fix for an another serialization bug that was affecting prefixMap (found thanks to cmoen)
+
 *** 0.4 ***
-- Fix for Serialization (found thanks to gunebakan)
+- Fix for serialization (found thanks to gunebakan)
 
 *** 0.3 ***
 - Simplifying the KeyAnalyzer interface
