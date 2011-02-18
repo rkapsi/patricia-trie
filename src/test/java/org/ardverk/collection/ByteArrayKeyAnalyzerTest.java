@@ -2,6 +2,7 @@ package org.ardverk.collection;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import junit.framework.TestCase;
@@ -15,7 +16,7 @@ public class ByteArrayKeyAnalyzerTest {
     @Test
     public void bitSet() {
         byte[] key = toByteArray("10100110", 2);
-        ByteArrayKeyAnalyzer ka = new ByteArrayKeyAnalyzer(key.length * 8);
+        ByteArrayKeyAnalyzer ka = new ByteArrayKeyAnalyzer.Constant(key.length * 8);
         
         TestCase.assertTrue(ka.isBitSet(key, 0));
         TestCase.assertFalse(ka.isBitSet(key, 1));
@@ -31,11 +32,11 @@ public class ByteArrayKeyAnalyzerTest {
     public void keys() {
         PatriciaTrie<byte[], BigInteger> trie
             = new PatriciaTrie<byte[], BigInteger>(
-                    ByteArrayKeyAnalyzer.INSTANCE);
+                    ByteArrayKeyAnalyzer.CONSTANT_LENGTH);
         
         Map<byte[], BigInteger> map 
             = new TreeMap<byte[], BigInteger>(
-                    ByteArrayKeyAnalyzer.INSTANCE);
+                    ByteArrayKeyAnalyzer.CONSTANT_LENGTH);
         
         for (int i = 0; i < SIZE; i++) {
             BigInteger value = BigInteger.valueOf(i);
@@ -78,5 +79,38 @@ public class ByteArrayKeyAnalyzerTest {
         byte[] dst = new byte[src.length-1];
         System.arraycopy(src, 1, dst, 0, dst.length);
         return dst;
+    }
+    
+    @Test
+    public void variableLength() {
+        Trie<String, String> trie1 
+            = new PatriciaTrie<String, String>(
+                    StringKeyAnalyzer.INSTANCE);
+        
+        trie1.put("Hello", "Hello");
+        trie1.put("World", "World");
+        trie1.put("Alfred", "Alfred");
+        trie1.put("Anna", "Anna");
+        trie1.put("Anna-Marie", "Anna-Marie");
+        
+        Trie<byte[], String> trie2 
+            = new PatriciaTrie<byte[], String>(
+                    ByteArrayKeyAnalyzer.VARIABLE_LENGTH);
+        
+        for (Entry<String, String> entry : trie1.entrySet()) {
+            byte[] key = entry.getKey().getBytes();
+            String value = entry.getValue();
+            
+            trie2.put(key, value);
+        }
+        
+        TestCase.assertEquals("Anna", trie1.selectValue("An"));
+        TestCase.assertEquals("Anna", trie2.selectValue("An".getBytes()));
+        
+        TestCase.assertEquals("Anna-Marie", trie1.selectValue("Anna-"));
+        TestCase.assertEquals("Anna-Marie", trie2.selectValue("Anna-".getBytes()));
+        
+        TestCase.assertEquals("World", trie1.selectValue("x"));
+        TestCase.assertEquals("World", trie2.selectValue("x".getBytes()));
     }
 }
