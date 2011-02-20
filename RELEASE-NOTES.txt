@@ -2,8 +2,18 @@
 
 Version History
 
-*** 0.5 ***
+*** 0.6 ***
+- Adding a new mode for the StringKeyAnalyzer & Co. that makes them
+  evaluate only the lower 8 bits of a character which should greatly
+  improve the performance if non 16bit characters are being used.
+  
+- Adding a new ByteArrayKeyAnalyzer for variable length keys.
+- Changing the ByteArrayKeyAnalyzer for constant length keys a bit
+  which should improve the performance a bit.
 
+NOTE: This version breaks serialization backwards compatibility.
+
+*** 0.5 ***
 - Fix for an another serialization bug that was affecting prefixMap (found thanks to cmoen)
 
 *** 0.4 ***
