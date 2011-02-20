@@ -16,7 +16,7 @@ public class ByteArrayKeyAnalyzerTest {
     @Test
     public void bitSet() {
         byte[] key = toByteArray("10100110", 2);
-        ByteArrayKeyAnalyzer ka = new ByteArrayKeyAnalyzer.Constant(key.length * 8);
+        ByteArrayKeyAnalyzer ka = ByteArrayKeyAnalyzer.create(key.length);
         
         TestCase.assertTrue(ka.isBitSet(key, 0));
         TestCase.assertFalse(ka.isBitSet(key, 1));
@@ -32,11 +32,11 @@ public class ByteArrayKeyAnalyzerTest {
     public void keys() {
         PatriciaTrie<byte[], BigInteger> trie
             = new PatriciaTrie<byte[], BigInteger>(
-                    ByteArrayKeyAnalyzer.CONSTANT_LENGTH);
+                    ByteArrayKeyAnalyzer.CONSTANT);
         
         Map<byte[], BigInteger> map 
             = new TreeMap<byte[], BigInteger>(
-                    ByteArrayKeyAnalyzer.CONSTANT_LENGTH);
+                    ByteArrayKeyAnalyzer.CONSTANT);
         
         for (int i = 0; i < SIZE; i++) {
             BigInteger value = BigInteger.valueOf(i);
@@ -85,7 +85,7 @@ public class ByteArrayKeyAnalyzerTest {
     public void variableLength() {
         Trie<String, String> trie1 
             = new PatriciaTrie<String, String>(
-                    StringKeyAnalyzer.INSTANCE);
+                    StringKeyAnalyzer.CHAR);
         
         trie1.put("Hello", "Hello");
         trie1.put("World", "World");
@@ -95,7 +95,7 @@ public class ByteArrayKeyAnalyzerTest {
         
         Trie<byte[], String> trie2 
             = new PatriciaTrie<byte[], String>(
-                    ByteArrayKeyAnalyzer.VARIABLE_LENGTH);
+                    ByteArrayKeyAnalyzer.VARIABLE);
         
         for (Entry<String, String> entry : trie1.entrySet()) {
             byte[] key = entry.getKey().getBytes();

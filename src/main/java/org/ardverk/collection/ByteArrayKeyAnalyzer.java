@@ -24,22 +24,34 @@ import java.io.Serializable;
 public abstract class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> 
         implements Serializable {
     
-    private static final long serialVersionUID = 6025688481529411156L;
+    private static final long serialVersionUID = 6496047734419335722L;
 
     /**
      * A {@link ByteArrayKeyAnalyzer} for constant length {@code byte[]}.
      */
-    public static final ByteArrayKeyAnalyzer CONSTANT_LENGTH = new Constant();
+    public static final ByteArrayKeyAnalyzer CONSTANT = new Constant();
     
     /**
      * A {@link ByteArrayKeyAnalyzer} for variable length {@code byte[]}.
      */
-    public static final ByteArrayKeyAnalyzer VARIABLE_LENGTH = new Variable();
+    public static final ByteArrayKeyAnalyzer VARIABLE = new Variable();
+    
+    @Deprecated
+    public static final ByteArrayKeyAnalyzer INSTANCE = CONSTANT;
     
     /**
      * A bit mask where the first bit is 1 and the others are zero
      */
     private static final int MSB = 1 << Byte.SIZE-1;
+    
+    /**
+     * Creates and returns a {@link ByteArrayKeyAnalyzer} for 
+     * fixed-length keys. The maximum length of a key is defined
+     * in bytes.
+     */
+    public static ByteArrayKeyAnalyzer create(int maxLength) {
+        return new Constant(maxLength);
+    }
     
     @Override
     public int compare(byte[] o1, byte[] o2) {
@@ -91,9 +103,19 @@ public abstract class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]>
     }
     
     /**
+     * Returns the {@code byte} value at the given index.
+     */
+    private static byte valueAt(byte[] values, int index) {
+        if (index >= 0 && index < values.length) {
+            return values[index];
+        }
+        return 0;
+    }
+    
+    /**
      * A {@link ByteArrayKeyAnalyzer} for variable length {@code byte[]}.
      */
-    public static class Variable extends ByteArrayKeyAnalyzer {
+    private static class Variable extends ByteArrayKeyAnalyzer {
         
         private static final long serialVersionUID = 5360165640553653434L;
 
@@ -111,22 +133,24 @@ public abstract class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]>
         @Override
         public int bitIndex(byte[] key, byte[] otherKey) {
             
-            int length1 = lengthInBits(key);
-            int length2 = lengthInBits(otherKey);
-            int length = Math.max(length1, length2);
+            int length = Math.max(key.length, otherKey.length);
             
             boolean allNull = true;
             for (int i = 0; i < length; i++) {
-                boolean value = isBitSet(key, i);
-                    
-                if (value) {
-                    allNull = false;
+                byte b1 = valueAt(key, i);
+                byte b2 = valueAt(otherKey, i);
+                
+                if (b1 != b2) {
+                    int xor = b1 ^ b2;
+                    for (int j = 0; j < Byte.SIZE; j++) {
+                        if ((xor & mask(j)) != 0) {
+                            return (i * Byte.SIZE) + j;
+                        }
+                    }
                 }
-                
-                boolean otherValue = isBitSet(otherKey, i);
-                
-                if (value != otherValue) {
-                    return i;
+                 
+                if (b1 != 0) {
+                    allNull = false;
                 }
             }
             
@@ -141,35 +165,31 @@ public abstract class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]>
     /**
      * A {@link ByteArrayKeyAnalyzer} for constant length {@code byte[]}.
      */
-    public static class Constant extends ByteArrayKeyAnalyzer {
+    private static class Constant extends ByteArrayKeyAnalyzer {
         
         private static final long serialVersionUID = 6464528643075848768L;
 
         private static final int DEFAULT_LENGTH = Integer.MAX_VALUE / Byte.SIZE;
         
-        private final int maxLengthInBits;
+        private final int maxLength;
         
         public Constant() {
             this(DEFAULT_LENGTH);
         }
         
-        public Constant(int maxLengthInBits) {
-            if (maxLengthInBits < 0 || DEFAULT_LENGTH < maxLengthInBits) {
-                throw new IllegalArgumentException(
-                        "maxLengthInBits=" + maxLengthInBits);
-            }
-            
-            this.maxLengthInBits = maxLengthInBits;
+        public Constant(int maxLength) {
+            this.maxLength = maxLength;
         }
         
-        public int getMaxLengthInBits() {
-            return maxLengthInBits;
-        }
-
         @Override
         public boolean isBitSet(byte[] key, int bitIndex) {
+            
+            if (maxLength < key.length) {
+                throw new IllegalArgumentException();
+            }
+            
             int lengthInBits = lengthInBits(key);
-            int prefix = maxLengthInBits - lengthInBits;
+            int prefix = (maxLength * Byte.SIZE) - lengthInBits;
             int keyBitIndex = bitIndex - prefix;
             
             if (keyBitIndex >= lengthInBits || keyBitIndex < 0) {
@@ -184,28 +204,33 @@ public abstract class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]>
         @Override
         public int bitIndex(byte[] key, byte[] otherKey) {
             
-            int length1 = lengthInBits(key);
-            int length2 = lengthInBits(otherKey);
-            int length = Math.max(length1, length2);
-            int prefix = maxLengthInBits - length;
-                    
-            if (prefix < 0) {
-                return KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
+            // NOTE: We don't have to check the otherKey because
+            // it's a key that is already in the Trie. It has 
+            // already passed this test when it was added to the 
+            // Trie back in the days...
+            if (maxLength < key.length) {
+                throw new IllegalArgumentException();
             }
             
             boolean allNull = true;
+            int length = Math.max(key.length, otherKey.length);
+            int prefixBits = (maxLength - length) * Byte.SIZE;
+            
             for (int i = 0; i < length; i++) {
-                int bitIndex = prefix + i;
-                boolean value = isBitSet(key, bitIndex);
-                    
-                if (value) {
-                    allNull = false;
+                byte b1 = valueAt(key, key.length - length + i);
+                byte b2 = valueAt(otherKey, otherKey.length - length + i);
+                
+                if (b1 != b2) {
+                    int xor = b1 ^ b2;
+                    for (int j = 0; j < Byte.SIZE; j++) {
+                        if ((xor & mask(j)) != 0) {
+                            return prefixBits + (i * Byte.SIZE) + j;
+                        }
+                    }
                 }
-                
-                boolean otherValue = isBitSet(otherKey, bitIndex);
-                
-                if (value != otherValue) {
-                    return bitIndex;
+                 
+                if (b1 != 0) {
+                    allNull = false;
                 }
             }
             

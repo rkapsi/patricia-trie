@@ -21,27 +21,55 @@ import java.io.Serializable;
 /**
  * A {@link KeyAnalyzer} for {@link Character}s.
  */
-public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> implements Serializable {
+public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> 
+        implements Serializable {
     
-    private static final long serialVersionUID = 7768219441533281842L;
-
-    public static final CharacterKeyAnalyzer INSTANCE = new CharacterKeyAnalyzer();
+    private static final long serialVersionUID = 5267330596735811400L;
 
     /**
-     * A bit mask where the first bit is 1 and the others are zero
+     * A {@link CharacterKeyAnalyzer} that uses all bits (16) of a {@code char}.
      */
-    private static final int MSB = 1 << Character.SIZE-1;
+    public static final CharacterKeyAnalyzer CHAR = new CharacterKeyAnalyzer(Character.SIZE);
+
+    /**
+     * A {@link CharacterKeyAnalyzer} that uses only the lower 8bits of a {@code char}.
+     */
+    public static final CharacterKeyAnalyzer BYTE = new CharacterKeyAnalyzer(Byte.SIZE);
+    
+    @Deprecated
+    public static final CharacterKeyAnalyzer INSTANCE = CHAR;
+    
+    private final int size;
+    
+    private final int msb;
+    
+    private CharacterKeyAnalyzer(int size) {
+        this(size, 1 << size-1);
+    }
+    
+    private CharacterKeyAnalyzer(int size, int msb) {
+        this.size = size;
+        this.msb = msb;
+    }
     
     /**
      * Returns a bit mask where the given bit is set
      */
-    private static int mask(int bit) {
-        return MSB >>> bit;
+    private int mask(int bit) {
+        return msb >>> bit;
+    }
+    
+    private char valueOf(Character ch) {
+        char value = ch.charValue();
+        if (size == Byte.SIZE) {
+            value &= 0xFF;
+        }
+        return value;
     }
     
     @Override
     public int lengthInBits(Character key) {
-        return Character.SIZE;
+        return size;
     }
 
     @Override
@@ -51,17 +79,17 @@ public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> impleme
 
     @Override
     public int bitIndex(Character key, Character otherKey) {
-        char keyValue = key.charValue();
-        if (keyValue == 0) {
+        char ch1 = valueOf(key);
+        char ch2 = valueOf(otherKey);
+        
+        if (ch1 == 0) {
             return NULL_BIT_KEY;
         }
-
-        char otherValue = otherKey.charValue();
         
-        if (keyValue != otherValue) {
-            int xorValue = keyValue ^ otherValue;
-            for (int i = 0; i < Character.SIZE; i++) {
-                if ((xorValue & mask(i)) != 0) {
+        if (ch1 != ch2) {
+            int xor = ch1 ^ ch2;
+            for (int i = 0; i < size; i++) {
+                if ((xor & mask(i)) != 0) {
                     return i;
                 }
             }
@@ -69,7 +97,7 @@ public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> impleme
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-
+    
     @Override
     public boolean isPrefix(Character key, Character prefix) {
         return key.equals(prefix);

@@ -21,39 +21,35 @@ import java.io.Serializable;
 /**
  * An {@link KeyAnalyzer} for {@code char[]}s
  */
-public class CharArrayKeyAnalyzer extends AbstractKeyAnalyzer<char[]> implements Serializable {
+public class CharArrayKeyAnalyzer extends AbstractKeyAnalyzer<char[]> 
+        implements Serializable {
     
-    private static final long serialVersionUID = -253675854844425270L;
-
-    private static final int DEFAULT_LENGTH = Integer.MAX_VALUE / Character.SIZE;
+    private static final long serialVersionUID = 683256578013018792L;
 
     /**
-     * A singleton instance of {@link CharArrayKeyAnalyzer}
+     * A {@link CharArrayKeyAnalyzer} that uses all bits (16) of a {@code char}.
      */
-    public static final CharArrayKeyAnalyzer INSTANCE = new CharArrayKeyAnalyzer();
+    public static final CharArrayKeyAnalyzer CHAR = new CharArrayKeyAnalyzer(Character.SIZE);
     
     /**
-     * A bit mask where the first bit is 1 and the others are zero
+     * A {@link CharArrayKeyAnalyzer} that uses only the lower 8 bits of a {@code char}.
      */
-    private static final int MSB = 0x8000;
+    public static final CharArrayKeyAnalyzer BYTE = new CharArrayKeyAnalyzer(Byte.SIZE);
     
-    private final int maxLengthInBits;
+    @Deprecated
+    public static final CharArrayKeyAnalyzer INSTANCE = CHAR;
     
-    public CharArrayKeyAnalyzer() {
-        this(DEFAULT_LENGTH);
+    private final int size;
+    
+    private final int msb;
+    
+    protected CharArrayKeyAnalyzer(int size) {
+        this(size, 1<<size-1);
     }
     
-    public CharArrayKeyAnalyzer(int maxLengthInBits) {
-        if (maxLengthInBits < 0 || DEFAULT_LENGTH < maxLengthInBits) {
-            throw new IllegalArgumentException(
-                    "maxLengthInBits=" + maxLengthInBits);
-        }
-        
-        this.maxLengthInBits = maxLengthInBits;
-    }
-    
-    public int getMaxLengthInBits() {
-        return maxLengthInBits;
+    protected CharArrayKeyAnalyzer(int size, int msb) {
+        this.size = size;
+        this.msb = msb;
     }
     
     @Override
@@ -80,49 +76,41 @@ public class CharArrayKeyAnalyzer extends AbstractKeyAnalyzer<char[]> implements
 
     @Override
     public int lengthInBits(char[] key) {
-        return key.length * Character.SIZE;
+        return key.length * size;
     }
 
     @Override
     public boolean isBitSet(char[] key, int bitIndex) {
-        int lengthInBits = lengthInBits(key);
-        int prefix = maxLengthInBits - lengthInBits;
-        int keyBitIndex = bitIndex - prefix;
-        
-        if (keyBitIndex >= lengthInBits || keyBitIndex < 0) {
+        if (bitIndex >= lengthInBits(key)) {
             return false;
         }
         
-        int index = (int)(keyBitIndex / Character.SIZE);
-        int bit = (int)(keyBitIndex % Character.SIZE);
+        int index = (int)(bitIndex / size);
+        int bit = (int)(bitIndex % size);
         return (key[index] & mask(bit)) != 0;
     }
 
     @Override
     public int bitIndex(char[] key, char[] otherKey) {
         
-        int length1 = lengthInBits(key);
-        int length2 = lengthInBits(otherKey);
-        int length = Math.max(length1, length2);
-        int prefix = maxLengthInBits - length;
-                
-        if (prefix < 0) {
-            return KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
-        }
+        int length = Math.max(key.length, otherKey.length);
         
         boolean allNull = true;
         for (int i = 0; i < length; i++) {
-            int bitIndex = prefix + i;
-            boolean value = isBitSet(key, bitIndex);
+            char ch1 = valueAt(key, i);
+            char ch2 = valueAt(otherKey, i);
                 
-            if (value) {
-                allNull = false;
+            if (ch1 != ch2) {
+                int xor = ch1 ^ ch2;
+                for (int j = 0; j < size; j++) {
+                    if ((xor & mask(j)) != 0) {
+                        return (i * size) + j;
+                    }
+                }
             }
             
-            boolean otherValue = isBitSet(otherKey, bitIndex);
-            
-            if (value != otherValue) {
-                return bitIndex;
+            if (ch1 != 0) {
+                allNull = false;
             }
         }
         
@@ -151,7 +139,18 @@ public class CharArrayKeyAnalyzer extends AbstractKeyAnalyzer<char[]> implements
     /**
      * Returns a bit mask where the given bit is set
      */
-    private static int mask(int bit) {
-        return MSB >>> bit;
+    private int mask(int bit) {
+        return msb >>> bit;
+    }
+    
+    private char valueAt(char[] values, int index) {
+        if (index < values.length) {
+            char value = values[index];
+            if (size == Byte.SIZE) {
+                value &= 0xFF;
+            }
+            return value;
+        }
+        return 0;
     }
 }

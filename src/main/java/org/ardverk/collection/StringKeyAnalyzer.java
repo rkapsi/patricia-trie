@@ -24,25 +24,58 @@ import java.io.Serializable;
 public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> 
         implements Serializable {
     
-    private static final long serialVersionUID = -4927553200563548034L;
-
-    public static final StringKeyAnalyzer INSTANCE = new StringKeyAnalyzer();
+    private static final long serialVersionUID = 7677641007465182788L;
 
     /**
-     * A 16-bit mask where the MSB bit is 1 and the others are zero
+     * A {@link StringKeyAnalyzer} that uses all bits (16) of a {@code char}.
      */
-    private static final int MSB = 1 << Character.SIZE-1;
+    public static final StringKeyAnalyzer CHAR = new StringKeyAnalyzer(Character.SIZE);
+
+    /**
+     * A {@link StringKeyAnalyzer} that uses only the lower 8 bits of each {@code char}.
+     */
+    public static final StringKeyAnalyzer BYTE = new StringKeyAnalyzer(Byte.SIZE);
+    
+    @Deprecated
+    public static final StringKeyAnalyzer INSTANCE = CHAR;
+    
+    private final int size;
+    
+    private final int msb;
+    
+    private StringKeyAnalyzer(int size) {
+        this(size, 1 << size-1);
+    }
+    
+    private StringKeyAnalyzer(int size, int msb) {
+        this.size = size;
+        this.msb = msb;
+    }
     
     /**
      * Returns a bit mask where the given bit is set
      */
-    private static int mask(int bit) {
-        return MSB >>> bit;
+    private int mask(int bit) {
+        return msb >>> bit;
+    }
+    
+    /**
+     * Returns the {@code char} at the given index.
+     */
+    private char valueAt(String value, int index) {
+        if (index < value.length()) {
+            char ch = value.charAt(index);
+            if (size == Byte.SIZE) {
+                ch &= 0xFF;
+            }
+            return ch;
+        }
+        return 0;
     }
     
     @Override
     public int lengthInBits(String key) {
-        return key.length() * Character.SIZE;
+        return key.length() * size;
     }
 
     @Override
@@ -51,39 +84,35 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String>
             return false;
         }
         
-        int index = (int)(bitIndex / Character.SIZE);
-        int bit = (int)(bitIndex % Character.SIZE);
+        int index = (int)(bitIndex / size);
+        int bit = (int)(bitIndex % size);
         
         return (key.charAt(index) & mask(bit)) != 0;
     }
-
+    
+    @Override
+    public boolean isPrefix(String key, String prefix) {
+        return key.startsWith(prefix);
+    }
+    
     @Override
     public int bitIndex(String key, String otherKey) {
         
         boolean allNull = true;
+        int length = Math.max(key.length(), otherKey.length());
         
-        int length1 = key.length();
-        int length2 = otherKey.length();
-        
-        int length = Math.max(length1, length2);
-        
-        char ch1, ch2 = 0;
         for (int i = 0; i < length; i++) {
-            if (i < length1) {
-                ch1 = key.charAt(i);
-            } else {
-                ch1 = 0;                
-            }
             
-            if (i < length2) {
-                ch2 = otherKey.charAt(i);
-            } else {
-                ch2 = 0;
-            }
+            char ch1 = valueAt(key, i);
+            char ch2 = valueAt(otherKey, i);
             
             if (ch1 != ch2) {
-                int x = ch1 ^ ch2;
-                return i * Character.SIZE + (Integer.numberOfLeadingZeros(x) - Character.SIZE);
+                int xor = ch1 ^ ch2;
+                for (int j = 0; j < size; j++) {
+                    if ((xor & mask(j)) != 0) {
+                        return (i * size) + j;
+                    }
+                }
             }
             
             if (ch1 != 0) {
@@ -98,10 +127,5 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String>
         
         // Both keys are equal
         return KeyAnalyzer.EQUAL_BIT_KEY;
-    }
-
-    @Override
-    public boolean isPrefix(String key, String prefix) {
-        return key.startsWith(prefix);
     }
 }

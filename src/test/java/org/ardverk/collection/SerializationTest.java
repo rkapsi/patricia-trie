@@ -16,7 +16,7 @@ public class SerializationTest {
     public void serialize() throws IOException, ClassNotFoundException {
         Trie<String, String> trie1 
             = new PatriciaTrie<String, String>(
-                StringKeyAnalyzer.INSTANCE);
+                StringKeyAnalyzer.CHAR);
         trie1.put("Hello", "World");
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -39,7 +39,7 @@ public class SerializationTest {
     public void prefixMap() throws IOException, ClassNotFoundException {
         Trie<String, String> trie1 
             = new PatriciaTrie<String, String>(
-                StringKeyAnalyzer.INSTANCE);
+                StringKeyAnalyzer.CHAR);
         trie1.put("Hello", "World");
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
