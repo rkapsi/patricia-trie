@@ -33,7 +33,7 @@
 			<fileset dir="${classes.dir}"/>
 			<manifest>
 				<attribute name="Built-By" value="${user.name}"/>
-				<attribute name="Implementation-Title" value="Patricia Trie"/>
+				<attribute name="Implementation-Title" value="${dist.name}"/>
 			</manifest>
 		</jar>
 	</target>
