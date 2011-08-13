@@ -2,4 +2,7 @@
 bin
 build
 dist
-
+target
+.classpath
+.project
+.settings
