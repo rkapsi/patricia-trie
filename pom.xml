@@ -4,19 +4,34 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <patricia-trie.git>git@github.com:rkapsi/patricia-trie.git</patricia-trie.git>
+  </properties>
+  
   <groupId>org.ardverk</groupId>
   <artifactId>patricia-trie</artifactId>
-  <version>0.6</version>
+  <version>0.6-SNAPSHOT</version>
   <packaging>jar</packaging>
   <url>https://github.com/rkapsi/patricia-trie</url>
   
   <distributionManagement>
     <repository>
-      <id>ardverk.org</id>
-      <url>scp://ardverk.org/repository</url>
+      <id>ardverk-release</id>
+      <url>scp://mvn.ardverk.org/repository/release</url>
     </repository>
+    <snapshotRepository>
+      <id>ardverk-snapshot</id>
+      <url>scp://mvn.ardverk.org/repository/snapshot</url>
+    </snapshotRepository>
   </distributionManagement>
 
+  <scm>
+    <connection>scm:git:${patricia-trie.git}</connection>
+    <url>scm:git:${patricia-trie.git}</url>
+    <developerConnection>scm:git:${patricia-trie.git}</developerConnection>
+  </scm>
+  
   <build>
     <extensions>
       <extension>
@@ -30,11 +45,15 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
         <configuration>
             <source>1.6</source>
             <target>1.6</target>
         </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
