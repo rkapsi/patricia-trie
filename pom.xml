@@ -8,7 +8,7 @@
   
   <groupId>org.ardverk</groupId>
   <artifactId>patricia-trie</artifactId>
-  <version>0.6</version>
+  <version>0.7-SNAPSHOT</version>
   <packaging>jar</packaging>
   <url>https://github.com/rkapsi/patricia-trie</url>
   
@@ -59,7 +59,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.2</version>
+      <version>[4.8.2,)</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
