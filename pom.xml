@@ -3,7 +3,7 @@
   
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <patricia-trie.git>git@github.com:rkapsi/patricia-trie.git</patricia-trie.git>
+    <scm.uri>scm:git:git@github.com:rkapsi/patricia-trie.git</scm.uri>
   </properties>
   
   <groupId>org.ardverk</groupId>
@@ -24,9 +24,9 @@
   </distributionManagement>
 
   <scm>
-    <connection>scm:git:${patricia-trie.git}</connection>
-    <url>scm:git:${patricia-trie.git}</url>
-    <developerConnection>scm:git:${patricia-trie.git}</developerConnection>
+    <connection>${scm.uri}</connection>
+    <url>${scm.uri}</url>
+    <developerConnection>${scm.uri}</developerConnection>
   </scm>
   
   <build>
