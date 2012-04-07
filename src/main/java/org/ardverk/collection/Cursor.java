@@ -5,7 +5,7 @@
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,49 +25,49 @@ import java.util.Map.Entry;
  * traversing the {@link Trie}.
  */
 public interface Cursor<K, V> {
+  
+  /**
+   * The {@link Decision} tells the {@link Cursor} what to do on each step 
+   * while traversing the {@link Trie}.
+   * 
+   * NOTE: Not all operations that work with a {@link Cursor} support all 
+   * {@link Decision} types
+   */
+  public static enum Decision {
     
     /**
-     * The {@link Decision} tells the {@link Cursor} what to do on each step 
-     * while traversing the {@link Trie}.
-     * 
-     * NOTE: Not all operations that work with a {@link Cursor} support all 
-     * {@link Decision} types
+     * Exit the traverse operation
      */
-    public static enum Decision {
-        
-        /**
-         * Exit the traverse operation
-         */
-        EXIT, 
-        
-        /**
-         * Continue with the traverse operation
-         */
-        CONTINUE, 
-        
-        /**
-         * Remove the previously returned element
-         * from the {@link Trie} and continue
-         */
-        REMOVE, 
-        
-        /**
-         * Remove the previously returned element
-         * from the {@link Trie} and exit from the
-         * traverse operation
-         */
-        REMOVE_AND_EXIT;
-    }
+    EXIT, 
     
     /**
-     * Called for each {@link Entry} in the {@link Trie}. Return 
-     * {@link Decision#EXIT} to finish the {@link Trie} operation,
-     * {@link Decision#CONTINUE} to go to the next {@link Entry},
-     * {@link Decision#REMOVE} to remove the {@link Entry} and
-     * continue iterating or {@link Decision#REMOVE_AND_EXIT} to
-     * remove the {@link Entry} and stop iterating.
-     * 
-     * Note: Not all operations support {@link Decision#REMOVE}.
+     * Continue with the traverse operation
      */
-    public Decision select(Map.Entry<? extends K, ? extends V> entry);
+    CONTINUE, 
+    
+    /**
+     * Remove the previously returned element
+     * from the {@link Trie} and continue
+     */
+    REMOVE, 
+    
+    /**
+     * Remove the previously returned element
+     * from the {@link Trie} and exit from the
+     * traverse operation
+     */
+    REMOVE_AND_EXIT;
+  }
+  
+  /**
+   * Called for each {@link Entry} in the {@link Trie}. Return 
+   * {@link Decision#EXIT} to finish the {@link Trie} operation,
+   * {@link Decision#CONTINUE} to go to the next {@link Entry},
+   * {@link Decision#REMOVE} to remove the {@link Entry} and
+   * continue iterating or {@link Decision#REMOVE_AND_EXIT} to
+   * remove the {@link Entry} and stop iterating.
+   * 
+   * Note: Not all operations support {@link Decision#REMOVE}.
+   */
+  public Decision select(Map.Entry<? extends K, ? extends V> entry);
 }
