@@ -33,7 +33,7 @@ public class LongKeyAnalyzer extends AbstractKeyAnalyzer<Long> implements Serial
   /**
    * A bit mask where the first bit is 1 and the others are zero
    */
-  private static final long MSB = 1 << Long.SIZE-1;
+  private static final long MSB = 1L << Long.SIZE-1;
   
   /**
    * Returns a bit mask where the given bit is set
